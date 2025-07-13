@@ -4,7 +4,19 @@ We are creating the recipe application. We need to following database structure.
 
 All the database ID will use the uuid.
 
-We already have the user table. Now, we will have following database structure. created_at, updated_at will be $table->timestamps()
+We already have the user table. Now, we will have following database structure. created_at, updated_at will be $table->timestamps() and user table must include $table->rememberToken();.
+
+Don't change the user database of following field.
+
+```php
+$table->uuid();
+$table->string('name');
+$table->string('email')->unique();
+$table->timestamp('email_verified_at')->nullable();
+$table->string('password');
+$table->rememberToken();
+$table->timestamps();
+```
 
 ```
 Table users {
@@ -16,6 +28,7 @@ Table users {
   password_hash varchar(255) [not null]
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
+  rememberToken
   is_active boolean [default: true]
 }
 
@@ -191,3 +204,4 @@ Ref: recipe_ratings.recipe_id > recipes.id [delete: cascade]
 Ref: recipe_ratings.user_id > users.id [delete: cascade]
 ```
 
+When creating the database, also create the model  object.
