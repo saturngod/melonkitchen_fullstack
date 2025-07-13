@@ -13,30 +13,38 @@ class TagsSeeder extends Seeder
     public function run(): void
     {
         $tags = [
-            ['name' => 'Quick & Easy', 'color' => '#4CAF50'],
-            ['name' => 'Healthy', 'color' => '#8BC34A'],
-            ['name' => 'Comfort Food', 'color' => '#FF9800'],
-            ['name' => 'Spicy', 'color' => '#F44336'],
-            ['name' => 'Sweet', 'color' => '#E91E63'],
-            ['name' => 'Savory', 'color' => '#795548'],
-            ['name' => 'Italian', 'color' => '#009688'],
-            ['name' => 'Mexican', 'color' => '#FF5722'],
-            ['name' => 'Asian', 'color' => '#9C27B0'],
-            ['name' => 'Mediterranean', 'color' => '#3F51B5'],
-            ['name' => 'American', 'color' => '#2196F3'],
-            ['name' => 'French', 'color' => '#607D8B'],
-            ['name' => 'Indian', 'color' => '#FF6F00'],
-            ['name' => 'Family Friendly', 'color' => '#CDDC39'],
-            ['name' => 'One Pot', 'color' => '#FFC107'],
-            ['name' => 'Make Ahead', 'color' => '#00BCD4'],
-            ['name' => 'Freezer Friendly', 'color' => '#673AB7'],
-            ['name' => 'Holiday', 'color' => '#E91E63'],
-            ['name' => 'Summer', 'color' => '#FFEB3B'],
-            ['name' => 'Winter', 'color' => '#607D8B'],
+            ['name' => 'Quick & Easy'],
+            ['name' => 'Healthy'],
+            ['name' => 'Comfort Food'],
+            ['name' => 'Spicy'],
+            ['name' => 'Sweet'],
+            ['name' => 'Savory'],
+            ['name' => 'Italian'],
+            ['name' => 'Mexican'],
+            ['name' => 'Asian'],
+            ['name' => 'Mediterranean'],
+            ['name' => 'American'],
+            ['name' => 'French'],
+            ['name' => 'Indian'],
+            ['name' => 'Family Friendly'],
+            ['name' => 'One Pot'],
+            ['name' => 'Make Ahead'],
+            ['name' => 'Freezer Friendly'],
+            ['name' => 'Holiday'],
+            ['name' => 'Summer'],
+            ['name' => 'Winter'],
         ];
 
+        $user = \App\Models\User::first();
+        if (!$user) {
+            throw new \Exception('No user found for created_user_id. Please seed users first.');
+        }
         foreach ($tags as $tag) {
-            Tag::create($tag);
+            Tag::create([
+                ...$tag,
+                'created_user_id' => $user->id,
+                'is_public' => false,
+            ]);
         }
     }
 }

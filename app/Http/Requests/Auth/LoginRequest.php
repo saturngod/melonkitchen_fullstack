@@ -41,13 +41,25 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+        \Log::info('Attempting Auth::attempt', [
+            'email' => $this->input('email'),
+            'password' => $this->input('password'),
+        ]);
+
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            \Log::warning('Auth::attempt failed', [
+                'email' => $this->input('email'),
+            ]);
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
         }
+
+        \Log::info('Auth::attempt succeeded', [
+            'user_id' => Auth::id(),
+        ]);
 
         RateLimiter::clear($this->throttleKey());
     }

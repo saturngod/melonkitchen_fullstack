@@ -9,6 +9,8 @@ interface AppLayoutProps {
 
 export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => (
     <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
-        {children}
+        <div className='mt-8 px-8'>
+            {children}
+        </div>
     </AppLayoutTemplate>
 );

@@ -18,7 +18,8 @@ class Tag extends Model
      */
     protected $fillable = [
         'name',
-        'color',
+        'created_user_id',
+        'is_public',
     ];
 
     /**
@@ -27,5 +28,13 @@ class Tag extends Model
     public function recipes(): BelongsToMany
     {
         return $this->belongsToMany(Recipe::class, 'recipe_tags');
+    }
+    
+    /**
+     * The user who created this tag.
+     */
+    public function createdUser(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'created_user_id');
     }
 }
