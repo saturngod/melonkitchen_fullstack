@@ -29,6 +29,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UnitsSeeder::class,
             CategoriesSeeder::class,
+            IngredientsSeeder::class,
+            IngredientUnitsSeeder::class,
             TagsSeeder::class,
         ]);
     }
