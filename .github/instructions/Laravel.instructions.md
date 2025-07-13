@@ -5,11 +5,13 @@ applyTo: '*.php'
 # Laravel 12.x Development Instructions for GitHub Copilot
 
 ## Overview
+
 These instructions guide GitHub Copilot to generate Laravel 12.x code following senior developer best practices, emphasizing SOLID principles, clean architecture, and modern PHP patterns.
 
 ## Core Principles
 
 ### SOLID Principles
+
 - **Single Responsibility**: Each class should have one reason to change
 - **Open/Closed**: Open for extension, closed for modification
 - **Liskov Substitution**: Derived classes must be substitutable for base classes
@@ -17,6 +19,7 @@ These instructions guide GitHub Copilot to generate Laravel 12.x code following 
 - **Dependency Inversion**: Depend on abstractions, not concretions
 
 ### Clean Code Standards
+
 - Use meaningful variable and method names
 - Keep methods small and focused (max 20 lines)
 - Avoid deep nesting (max 3 levels)
@@ -25,7 +28,19 @@ These instructions guide GitHub Copilot to generate Laravel 12.x code following 
 
 ## Laravel 12.x Specific Guidelines
 
+### Use Header
+
+```php
+// ✅ Good - Use header at the top of the file
+use App\Http\Controllers\Controller;
+use App\Models\User;
+
+// ❌ Bad - Directly using classes without header
+App\Models\User::find(1);
+```
+
 ### Service Container & Dependency Injection
+
 ```php
 // ✅ Good - Constructor injection with interface
 class UserController extends Controller
@@ -61,7 +76,7 @@ interface UserRepositoryInterface
 class EloquentUserRepository implements UserRepositoryInterface
 {
     public function __construct(private readonly User $model) {}
-    
+
     public function findById(int $id): ?User
     {
         return $this->model->find($id);
@@ -79,7 +94,7 @@ class UserService
         private readonly HashManager $hasher,
         private readonly EventDispatcher $eventDispatcher
     ) {}
-    
+
     public function createUser(CreateUserRequest $request): User
     {
         $user = $this->userRepository->create([
@@ -87,15 +102,16 @@ class UserService
             'email' => $request->email,
             'password' => $this->hasher->make($request->password),
         ]);
-        
+
         $this->eventDispatcher->dispatch(new UserCreated($user));
-        
+
         return $user;
     }
 }
 ```
 
 ## Architecture Patterns
+
 ### Command Pattern for Complex Operations
 
 ```php
@@ -134,7 +150,6 @@ class GetUserHandler
 }
 ```
 
-
 ### Factory Pattern for Complex Object Creation
 
 ```php
@@ -152,7 +167,6 @@ class UserFactory
 }
 ```
 
-
 ### Form Request Validation
 
 ```php
@@ -166,7 +180,7 @@ class CreateUserRequest extends FormRequest
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
-    
+
     public function messages(): array
     {
         return [
@@ -195,6 +209,7 @@ class UserResource extends JsonResource
 ```
 
 ## Event-Driven Architecture
+
 ```php
 // Event
 class UserCreated
@@ -215,14 +230,14 @@ Eloquent Models
 phpclass User extends Authenticatable
 {
     protected $fillable = ['name', 'email', 'password'];
-    
+
     protected $hidden = ['password', 'remember_token'];
-    
+
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    
+
     // Relationships
     public function posts(): HasMany
     {
@@ -247,6 +262,7 @@ User::chunk(100, function ($users) {
 // ✅ Good - Specific columns
 $users = User::select('id', 'name', 'email')->get();
 ```
+
 ### Error Handling
 
 ```php
@@ -256,20 +272,20 @@ class UserService
     {
         try {
             DB::beginTransaction();
-            
+
             $user = $this->userRepository->create($request->validated());
-            
+
             DB::commit();
-            
+
             return $user;
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('User creation failed', [
                 'error' => $e->getMessage(),
                 'data' => $request->validated()
             ]);
-            
+
             throw new UserCreationException('Failed to create user');
         }
     }
@@ -277,13 +293,14 @@ class UserService
 ```
 
 ## Testing Guidelines
+
 ### Feature Tests
 
 ```php
 class UserControllerTest extends TestCase
 {
     use RefreshDatabase;
-    
+
     public function test_user_can_be_created(): void
     {
         $userData = [
@@ -292,12 +309,12 @@ class UserControllerTest extends TestCase
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ];
-        
+
         $response = $this->postJson('/api/users', $userData);
-        
+
         $response->assertStatus(201)
                 ->assertJsonStructure(['data' => ['id', 'name', 'email']]);
-        
+
         $this->assertDatabaseHas('users', [
             'name' => 'John Doe',
             'email' => 'john@example.com',
@@ -317,12 +334,12 @@ class UserServiceTest extends TestCase
         $mockRepository->expects($this->once())
                       ->method('create')
                       ->willReturn(new User());
-        
+
         $service = new UserService($mockRepository);
         $request = new CreateUserRequest();
-        
+
         $result = $service->createUser($request);
-        
+
         $this->assertInstanceOf(User::class, $result);
     }
 }
@@ -339,16 +356,17 @@ class UserController extends Controller
     {
         // Request validation happens automatically
         $validatedData = $request->validated();
-        
+
         // Additional sanitization if needed
         $validatedData['name'] = strip_tags($validatedData['name']);
-        
+
         $user = $this->userService->createUser($validatedData);
-        
+
         return response()->json(new UserResource($user), 201);
     }
 }
 ```
+
 ## Rate Limiting
 
 ```php
@@ -382,9 +400,9 @@ class UserService
 class ProcessUserDataJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-    
+
     public function __construct(private readonly User $user) {}
-    
+
     public function handle(): void
     {
         // Heavy processing logic
