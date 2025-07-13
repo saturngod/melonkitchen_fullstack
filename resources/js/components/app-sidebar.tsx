@@ -55,7 +55,7 @@ const navGroups: NavGroup[] = [
             },
             {
                 title: 'Tags',
-                href: '/dashboard/tags',
+                href: '/tags',
                 icon: Tag,
             },
         ],
