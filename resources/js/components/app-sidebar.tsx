@@ -39,19 +39,10 @@ const navGroups: NavGroup[] = [
             },
             {
                 title: 'Ingredient',
-                href: '/dashboard/ingredients',
+                href: '/ingredients',
                 icon: Combine,
-                isCollapsible: true,
-                items: [
-                    {
-                        title: 'All Ingredients',
-                        href: '/dashboard/ingredients',
-                    },
-                    {
-                        title: 'Ingredient Category',
-                        href: '/dashboard/ingredients/categories',
-                    },
-                ],
+                isCollapsible: false,
+
             },
             {
                 title: 'Tags',
@@ -63,7 +54,7 @@ const navGroups: NavGroup[] = [
     {
         title: 'User Management',
         items: [
-            
+
         ],
     },
 ];

@@ -5,10 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\IngredientUnits;
 
 class Ingredient extends Model
 {
+    use HasFactory, HasUuids;
+
+    /**
+     * Get the units for this ingredient through the pivot table.
+     */
+    public function units(): BelongsToMany
+    {
+        return $this->belongsToMany(Unit::class, 'ingredient_units');
+    }
     use HasFactory, HasUuids;
 
     /**

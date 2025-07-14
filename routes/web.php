@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\IngredientController;
 
 Route::get('/', function () {
     \Log::info('Test log from web.php route');
@@ -14,7 +16,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     // Tag management
-    Route::resource('tags', App\Http\Controllers\TagController::class)
+    Route::resource('tags', TagController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    // Ingredient management
+    Route::resource('ingredients', IngredientController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 });
 
