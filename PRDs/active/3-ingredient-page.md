@@ -16,6 +16,8 @@ Action are , Edit and Delete.
 
 We will use Control at the page.
 
+Page need to support pagination.
+
 ```tsx
 <Control searchValue={search} onSearchChange={handleSearchChange} actionText="Create" actionEvent={() => setShowCreate(true)} />
 ```
