@@ -11,17 +11,22 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
 
-    // Tag management
-    Route::resource('tags', TagController::class)
+    Route::prefix('dashboard')->group(function () {
+        
+        Route::get('/', function () {
+            return Inertia::render('dashboard');
+        })->name('dashboard.index');
+        
+        Route::resource('tags', TagController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
-    // Ingredient management
-    Route::resource('ingredients', IngredientController::class)
+        // Ingredient management
+        Route::resource('ingredients', IngredientController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+    });
+    
+   
 });
 
 require __DIR__.'/settings.php';

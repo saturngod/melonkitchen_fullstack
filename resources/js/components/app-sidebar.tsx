@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavGroup, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Combine, Folder, LayoutGrid, PartyPopper, Tag } from 'lucide-react';
+import { BookOpen, Boxes, Combine, Folder, LayoutGrid, PartyPopper, Tag } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const navGroups: NavGroup[] = [
@@ -22,31 +22,27 @@ const navGroups: NavGroup[] = [
         title: 'Recipe Management',
         items: [
             {
-                title: 'Recipe',
+                title: 'Recipes',
                 href: '/dashboard/recipes',
                 icon: PartyPopper,
-                isCollapsible: true,
-                items: [
-                    {
-                        title: 'All Recipes',
-                        href: '/dashboard/recipes',
-                    },
-                    {
-                        title: 'Category',
-                        href: '/dashboard/recipes/categories',
-                    },
-                ],
+                isCollapsible: false,
             },
             {
-                title: 'Ingredient',
-                href: '/ingredients',
+                title: 'Categories',
+                href: '/dashboard/categories',
+                icon: Boxes,
+                isCollapsible: false,
+            },
+            {
+                title: 'Ingredients',
+                href: '/dashboard/ingredients',
                 icon: Combine,
                 isCollapsible: false,
 
             },
             {
                 title: 'Tags',
-                href: '/tags',
+                href: '/dashboard/tags',
                 icon: Tag,
             },
         ],
