@@ -30,13 +30,57 @@ These instructions guide GitHub Copilot to generate Laravel 12.x code following 
 
 ### Use Header
 
-```php
-// ✅ Good - Use header at the top of the file
-use App\Http\Controllers\Controller;
-use App\Models\User;
+Correct Way to Import and Use CategoryController
 
-// ❌ Bad - Directly using classes without header
-App\Models\User::find(1);
+Add the use statement at the top of your file:
+
+```php
+<?php
+
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Controller;
+// Add other imports as needed
+```
+
+Then use it without the full namespace:
+
+```php
+// ✅ Good - After importing with 'use'
+$controller = new CategoryController();
+// or
+$controller = app(CategoryController::class);
+```
+
+Avoid using the full namespace directly:
+
+```php
+// ❌ Bad - Don't use full namespace in code
+$controller = new \App\Http\Controllers\CategoryController();
+```
+
+Complete Example:
+
+```php
+<?php
+
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Controller;
+use App\Models\Category;
+use Illuminate\Http\Request;
+
+class SomeService
+{
+public function \_\_construct(
+private readonly CategoryController $categoryController
+) {}
+
+    public function processCategory(): void
+    {
+        // Use CategoryController here without full namespace
+        $result = $this->categoryController->someMethod();
+    }
+
+}
 ```
 
 ### Service Container & Dependency Injection

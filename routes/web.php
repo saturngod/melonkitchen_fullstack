@@ -21,6 +21,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('tags', TagController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
+        // Category management
+        Route::resource('categories', \App\Http\Controllers\CategoryController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
         // Ingredient management
         Route::resource('ingredients', IngredientController::class)
         ->only(['index', 'store', 'update', 'destroy']);
