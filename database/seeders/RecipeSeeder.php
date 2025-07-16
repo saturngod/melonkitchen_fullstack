@@ -14,32 +14,7 @@ use Illuminate\Database\Seeder;
 
 class RecipeSeeder extends Seeder
 {
-    /**
-     * Convert fraction string to decimal
-     */
-    private function convertFraction($fraction): float
-    {
-        if (strpos($fraction, '/') !== false) {
-            $parts = explode('/', $fraction);
-            if (count($parts) === 2) {
-                return (float) $parts[0] / (float) $parts[1];
-            }
-        }
-        
-        // Handle mixed numbers like "2 1/4"
-        if (strpos($fraction, ' ') !== false) {
-            $parts = explode(' ', $fraction);
-            $whole = (float) $parts[0];
-            if (isset($parts[1]) && strpos($parts[1], '/') !== false) {
-                $fractionParts = explode('/', $parts[1]);
-                if (count($fractionParts) === 2) {
-                    return $whole + ((float) $fractionParts[0] / (float) $fractionParts[1]);
-                }
-            }
-        }
-        
-        return (float) $fraction;
-    }
+    
 
     /**
      * Run the database seeds.
@@ -263,7 +238,7 @@ class RecipeSeeder extends Seeder
                 RecipeIngredient::create([
                     'recipe_id' => $recipe->id,
                     'ingredient_id' => $ingredient->id,
-                    'quantity' => $this->convertFraction($ingredientData['quantity']),
+                    'quantity' => $ingredientData['quantity'],
                     'unit_id' => $unit->id,
                 ]);
             }

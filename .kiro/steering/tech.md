@@ -17,6 +17,7 @@
 - **Icons**: Lucide React
 - **State Management**: Inertia.js forms and page props
 - **Styling**: Tailwind CSS with custom component system
+- **UI Component**: Shadcn UI components for the whole system.
 
 ## Development Tools
 

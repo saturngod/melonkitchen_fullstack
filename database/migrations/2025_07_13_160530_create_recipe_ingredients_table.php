@@ -15,7 +15,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('recipe_id');
             $table->uuid('ingredient_id');
-            $table->decimal('quantity', 10, 3);
+            $table->string('quantity');
             $table->uuid('unit_id');
             $table->text('notes')->nullable();
             $table->boolean('is_optional')->default(false);
