@@ -102,4 +102,12 @@ class Recipe extends Model
     {
         return $this->hasMany(RecipeRating::class);
     }
+
+    /**
+     * Scope a query to search recipes by title.
+     */
+    public function scopeSearch($query, $search)
+    {
+        return $query->where('title', 'like', "%{$search}%");
+    }
 }

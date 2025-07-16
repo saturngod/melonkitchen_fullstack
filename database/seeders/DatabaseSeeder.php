@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             IngredientsSeeder::class,
             IngredientUnitsSeeder::class,
             TagsSeeder::class,
+            RecipeSeeder::class,
         ]);
     }
 }

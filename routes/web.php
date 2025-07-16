@@ -28,6 +28,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Ingredient management
         Route::resource('ingredients', IngredientController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+
+        // Recipe management
+        Route::resource('recipes', \App\Http\Controllers\RecipeController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
     });
     
    

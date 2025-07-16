@@ -43,3 +43,37 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface Category {
+    id: string;
+    name: string;
+    parent_id?: string;
+    parent?: Category;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Tag {
+    id: string;
+    name: string;
+    is_public: boolean;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Recipe {
+    id: string;
+    title: string;
+    description: string;
+    image_url?: string;
+    is_public: boolean;
+    prep_time_minutes?: number;
+    cook_time_minutes?: number;
+    servings?: number;
+    difficulty?: string;
+    categories: Category[];
+    tags: Tag[];
+    user: User;
+    created_at: string;
+    updated_at: string;
+}
