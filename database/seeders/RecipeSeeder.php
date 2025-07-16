@@ -268,28 +268,16 @@ class RecipeSeeder extends Seeder
                 ]);
             }
 
-            // Attach categories manually due to UUID pivot table
+            // Attach categories using attach() with UUID workaround
             $recipeCategories = $categories->whereIn('name', $recipeData['categories']);
             foreach ($recipeCategories as $category) {
-                \DB::table('recipe_categories')->insert([
-                    'id' => \Str::uuid(),
-                    'recipe_id' => $recipe->id,
-                    'category_id' => $category->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                $recipe->categories()->attach($category->id, ['id' => \Str::uuid()->toString()]);
             }
 
-            // Attach tags manually due to UUID pivot table
+            // Attach tags using attach() with UUID workaround
             $recipeTags = $tags->whereIn('name', $recipeData['tags']);
             foreach ($recipeTags as $tag) {
-                \DB::table('recipe_tags')->insert([
-                    'id' => \Str::uuid(),
-                    'recipe_id' => $recipe->id,
-                    'tag_id' => $tag->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                $recipe->tags()->attach($tag->id, ['id' => \Str::uuid()->toString()]);
             }
         }
     }
