@@ -243,16 +243,16 @@ class RecipeSeeder extends Seeder
                 ]);
             }
 
-            // Attach categories using attach() with UUID workaround
+            // Attach categories using attach()
             $recipeCategories = $categories->whereIn('name', $recipeData['categories']);
             foreach ($recipeCategories as $category) {
-                $recipe->categories()->attach($category->id, ['id' => \Str::uuid()->toString()]);
+                $recipe->categories()->attach($category->id);
             }
 
-            // Attach tags using attach() with UUID workaround
+            // Attach tags using attach()
             $recipeTags = $tags->whereIn('name', $recipeData['tags']);
             foreach ($recipeTags as $tag) {
-                $recipe->tags()->attach($tag->id, ['id' => \Str::uuid()->toString()]);
+                $recipe->tags()->attach($tag->id);
             }
         }
     }

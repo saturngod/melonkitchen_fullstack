@@ -64,7 +64,7 @@ interface RecipeFormData {
     instructions: Array<{
         step_number: number;
         instruction: string;
-        image?: File;
+        image?: File | null;
     }>;
 
     // Step 4: Nutrition
@@ -106,7 +106,7 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
         category_id: '',
         tag_ids: [],
         ingredients: [],
-        instructions: [{ step_number: 1, instruction: '' }],
+        instructions: [{ step_number: 1, instruction: '', image: null }],
         nutrition: {},
     });
     const firstErrorStep = stepValidations.findIndex(validate => !validate());
@@ -141,8 +141,27 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
         setCurrentStep(step);
     };
     const handleSubmit = () => {
+        console.log('Submit clicked, data:', data);
+        console.log('Validation errors:', errors);
+
+        // Check if all steps are valid
+        const allValid = stepValidations.every(validate => validate());
+        console.log('All steps valid:', allValid);
+
+        if (!allValid) {
+            console.log('Validation failed for some steps');
+            alert('Please complete all required fields before submitting.');
+            if (firstErrorStep >= 0) setCurrentStep(firstErrorStep + 1);
+            return;
+        }
+
+        console.log('Submitting form...');
         post(route('recipes.store'), {
-            onError: () => {
+            onSuccess: () => {
+                console.log('Recipe created successfully');
+            },
+            onError: (errors) => {
+                console.log('Form submission errors:', errors);
                 if (firstErrorStep >= 0) setCurrentStep(firstErrorStep + 1);
             }
         });
@@ -221,7 +240,7 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
                         )}
                     </CardContent>
                 </Card>
-                <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <div className="flex flex-col sm:flex-row justify-between gap-4 mb-5">
                     <Button
                         type="button"
                         variant="outline"
@@ -243,7 +262,10 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
                         ) : (
                             <Button
                                 type="button"
-                                onClick={handleSubmit}
+                                onClick={() => {
+                                    console.log('Create Recipe button clicked!');
+                                    handleSubmit();
+                                }}
                                 disabled={processing}
                                 aria-label="Create Recipe"
                             >

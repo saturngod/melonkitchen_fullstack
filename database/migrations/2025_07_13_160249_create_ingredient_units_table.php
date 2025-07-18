@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('ingredient_units', function (Blueprint $table) {
-            $table->uuid('id')->primary();
             $table->uuid('ingredient_id');
             $table->uuid('unit_id');
             $table->boolean('is_default')->default(false);
+            $table->primary(['ingredient_id', 'unit_id']);
             $table->timestamps();
 
             $table->foreign('ingredient_id')->references('id')->on('ingredients')->onDelete('cascade');
