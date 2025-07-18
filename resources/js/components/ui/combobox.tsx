@@ -63,7 +63,10 @@ export function Combobox({
             </PopoverTrigger>
             <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
                 <Command>
-                    <CommandInput placeholder={`Search ${placeholder.toLowerCase()}...`} className="h-9" />
+                    <CommandInput
+                        placeholder={`Search ${placeholder.toLowerCase()}...`}
+                        className="h-9"
+                    />
                     <CommandList>
                         <CommandEmpty>No option found.</CommandEmpty>
                         <CommandGroup>
@@ -84,7 +87,7 @@ export function Combobox({
                             {options.map((option) => (
                                 <CommandItem
                                     key={option.value}
-                                    value={option.value}
+                                    value={option.label}
                                     onSelect={() => handleSelect(option.value)}
                                 >
                                     {option.label}

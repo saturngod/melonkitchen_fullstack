@@ -161,40 +161,23 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
                         Create a new recipe by following the steps below.
                     </p>
                 </div>
+                {/* Minimal Stepper Navigation - Horizontal Row, Small Step Numbers Only */}
                 <div className="mb-8">
                     <nav aria-label="Progress">
-                        <ol className="flex flex-wrap items-center">
+                        <ol className="flex justify-center items-center gap-6">
                             {STEPS.map((step, stepIdx) => (
-                                <li key={step.id} className={`relative ${stepIdx !== STEPS.length - 1 ? 'pr-4 sm:pr-20' : ''}`}>
-                                    <div className="flex items-center">
-                                        <button
-                                            onClick={() => handleStepClick(step.id)}
-                                            className={`relative flex h-10 w-10 items-center justify-center rounded-full border-2 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-150 ${step.id === currentStep
-                                                ? 'border-primary bg-primary text-primary-foreground'
-                                                : step.id < currentStep
-                                                    ? 'border-primary bg-primary text-primary-foreground'
-                                                    : 'border-muted-foreground bg-background text-muted-foreground'
-                                                } ${stepHasError(stepIdx) ? 'border-red-500 ring-2 ring-red-500' : ''}`}
-                                            aria-current={step.id === currentStep ? 'step' : undefined}
-                                            aria-label={`Step ${step.id}: ${step.title}`}
-                                            tabIndex={0}
-                                        >
-                                            <span className="text-sm font-medium">{step.id}</span>
-                                        </button>
-                                        <span className="ml-2 min-w-0 flex flex-col">
-                                            <span className={`text-sm font-medium ${step.id === currentStep ? 'text-primary' : 'text-muted-foreground'
-                                                }`}>
-                                                {step.title}
-                                            </span>
-                                            <span className="text-xs sm:text-sm text-muted-foreground">{step.description}</span>
-                                            {stepHasError(stepIdx) && (
-                                                <span className="text-xs text-red-500">Please fix errors</span>
-                                            )}
-                                        </span>
-                                    </div>
-                                    {stepIdx !== STEPS.length - 1 && (
-                                        <div className="absolute top-5 left-5 -ml-px mt-0.5 h-full w-0.5 bg-muted-foreground" aria-hidden="true" />
-                                    )}
+                                <li key={step.id}>
+                                    <button
+                                        onClick={() => handleStepClick(step.id)}
+                                        className={`h-8 w-8 flex items-center justify-center rounded-full border-2 text-base font-semibold transition-all duration-150
+                                            ${currentStep === step.id ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-400 bg-white text-neutral-900'}
+                                            ${stepHasError(stepIdx) ? 'border-red-500 ring-2 ring-red-500' : ''}`}
+                                        aria-current={currentStep === step.id ? 'step' : undefined}
+                                        aria-label={`Step ${step.id}`}
+                                        tabIndex={0}
+                                    >
+                                        {step.id}
+                                    </button>
                                 </li>
                             ))}
                         </ol>
