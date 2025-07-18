@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ]   1. Set up backend route and controller foundation
+- [x]   1. Set up backend route and controller foundation
 
     - Add create route to web.php for GET /dashboard/recipes/create
     - Implement RecipeController@create method to render create page with required data
@@ -8,7 +8,7 @@
     - Create basic RecipeController@store method structure
     - _Requirements: 1.1, 1.2_
 
-- [ ]   2. Create form request validation classes
+- [x]   2. Create form request validation classes
 
     - Create StoreRecipeRequest form request class with comprehensive validation rules
     - Implement validation for all four steps: information, categories/tags/ingredients, instructions, nutrition
@@ -16,7 +16,7 @@
     - Include file upload validation for images
     - _Requirements: 2.10, 5.2, 5.3, 6.1, 6.5_
 
-- [ ]   3. Implement basic create page component structure
+- [x]   3. Implement basic create page component structure
 
     - Create resources/js/pages/recipes/create.tsx as main page component
     - Set up Inertia form state management with RecipeFormData interface
@@ -24,7 +24,7 @@
     - Create step navigation component with tab interface
     - _Requirements: 1.3, 1.4, 7.1_
 
-- [ ]   4. Build Step 1: Information component
+- [x]   4. Build Step 1: Information component
 
     - Create InformationStep component with all required form fields
     - Implement title, description, servings, difficulty, prep_time, cook_time fields
@@ -33,7 +33,7 @@
     - Add client-side validation for required fields
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10_
 
-- [ ]   5. Build Step 2: Category/Tags/Ingredients component
+- [x]   5. Build Step 2: Category/Tags/Ingredients component
 
     - Create CategoryTagsIngredientsStep component
     - Implement category selection using existing Combobox component
@@ -94,7 +94,7 @@
     - Test navigation flow from index to create and back
     - _Requirements: 1.1_
 
-- [ ]   12. Add drag-and-drop dependencies and setup
+- [-] 12. Add drag-and-drop dependencies and setup
 
     - Install @dnd-kit/core, @dnd-kit/sortable, @dnd-kit/utilities packages
     - Configure drag-and-drop context in instructions component

@@ -38,11 +38,106 @@ class RecipeController extends Controller
     }
 
     /**
+     * Show the form for creating a new recipe.
+     */
+    public function create(): Response
+    {
+        return Inertia::render('recipes/create', [
+            'categories' => \App\Models\Category::with('parent')->get(),
+            'tags' => \App\Models\Tag::where('is_public', true)
+                ->orWhere('created_user_id', auth()->id())
+                ->get(),
+            'ingredients' => \App\Models\Ingredient::all(),
+            'units' => \App\Models\Unit::all(),
+        ]);
+    }
+
+    /**
      * Store a newly created recipe.
      */
     public function store(Request $request)
     {
-        // Placeholder for future implementation
+        $validated = $request->validate((new \App\Http\Requests\StoreRecipeRequest())->rules());
+
+        \DB::beginTransaction();
+        try {
+            // Handle recipe image upload
+            $imageUrl = null;
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $imagePath = $image->store('public/recipes');
+                $imageUrl = \Storage::url($imagePath);
+            }
+
+            // Create recipe
+            $recipe = Recipe::create([
+                'user_id' => auth()->id(),
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'servings' => $validated['servings'],
+                'difficulty' => $validated['difficulty'],
+                'prep_time_minutes' => $validated['prep_time_minutes'],
+                'cook_time_minutes' => $validated['cook_time_minutes'],
+                'image_url' => $imageUrl,
+                'youtube_url' => $validated['youtube_url'] ?? null,
+            ]);
+
+            // Attach category
+            if (!empty($validated['category_id'])) {
+                $recipe->categories()->attach($validated['category_id']);
+            }
+
+            // Attach tags
+            if (!empty($validated['tag_ids'])) {
+                $recipe->tags()->attach($validated['tag_ids']);
+            }
+
+            // Add ingredients
+            foreach ($validated['ingredients'] as $ingredient) {
+                $recipe->recipeIngredients()->create([
+                    'ingredient_id' => $ingredient['ingredient_id'],
+                    'quantity' => $ingredient['quantity'],
+                    'unit_id' => $ingredient['unit_id'],
+                    'notes' => $ingredient['notes'] ?? null,
+                    'is_optional' => $ingredient['is_optional'] ?? false,
+                ]);
+            }
+
+            // Add instructions
+            foreach ($validated['instructions'] as $idx => $instruction) {
+                $stepImageUrl = null;
+                if (isset($instruction['image']) && $instruction['image']) {
+                    $stepImage = $instruction['image'];
+                    $stepImagePath = $stepImage->store('public/instructions');
+                    $stepImageUrl = \Storage::url($stepImagePath);
+                }
+                $recipe->instructions()->create([
+                    'step_number' => $idx + 1,
+                    'instruction' => $instruction['instruction'],
+                    'image_url' => $stepImageUrl,
+                ]);
+            }
+
+            // Add nutrition info
+            if (!empty($validated['nutrition'])) {
+                $nutrition = $validated['nutrition'];
+                $recipe->nutritionInfo()->create([
+                    'calories_per_serving' => $nutrition['calories'] ?? null,
+                    'protein_grams' => $nutrition['protein_g'] ?? null,
+                    'carbs_grams' => $nutrition['carbs_g'] ?? null,
+                    'fat_grams' => $nutrition['fat_g'] ?? null,
+                    'fiber_grams' => $nutrition['fiber_g'] ?? null,
+                    'sugar_grams' => $nutrition['sugar_g'] ?? null,
+                    'sodium_mg' => $nutrition['sodium_mg'] ?? null,
+                ]);
+            }
+
+            \DB::commit();
+            return redirect()->route('recipes.index')->with('success', 'Recipe created successfully!');
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Failed to create recipe: ' . $e->getMessage()]);
+        }
     }
 
     /**

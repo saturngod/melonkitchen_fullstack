@@ -36,8 +36,7 @@ export default function RecipeIndex({ recipes, filters }: RecipeIndexProps) {
     }
 
     function handleAddRecipe() {
-        console.log('Add New Recipe clicked');
-        // Placeholder for future navigation to recipe creation form
+        router.get(route('recipes.create'));
     }
 
     function handleTogglePublic(id: string, isPublic: boolean) {
