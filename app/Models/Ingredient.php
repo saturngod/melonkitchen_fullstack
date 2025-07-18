@@ -14,15 +14,6 @@ class Ingredient extends Model
     use HasFactory, HasUuids;
 
     /**
-     * Get the units for this ingredient through the pivot table.
-     */
-    public function units(): BelongsToMany
-    {
-        return $this->belongsToMany(Unit::class, 'ingredient_units');
-    }
-    use HasFactory, HasUuids;
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -31,6 +22,14 @@ class Ingredient extends Model
         'name',
         'description',
     ];
+
+    /**
+     * Get the units for this ingredient through the pivot table.
+     */
+    public function units(): BelongsToMany
+    {
+        return $this->belongsToMany(Unit::class, 'ingredient_units');
+    }
 
     /**
      * Get the ingredient units for this ingredient.

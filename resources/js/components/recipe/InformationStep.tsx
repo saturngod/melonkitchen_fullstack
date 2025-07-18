@@ -102,10 +102,18 @@ export default function InformationStep({ data, setData, errors }: InformationSt
                     </Label>
                     <Input
                         id="servings"
-                        type="number"
-                        min="1"
-                        value={data.servings}
-                        onChange={(e) => setData('servings', parseInt(e.target.value) || 1)}
+                        type="text"
+                        value={data.servings.toString()}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            const parsed = parseInt(value);
+                            if (!isNaN(parsed) && parsed >= 1) {
+                                setData('servings', parsed);
+                            } else if (value === '') {
+                                setData('servings', 1);
+                            }
+                        }}
+                        placeholder="1"
                         className={errors.servings ? 'border-destructive' : ''}
                     />
                     {errors.servings && (
@@ -146,10 +154,18 @@ export default function InformationStep({ data, setData, errors }: InformationSt
                     </Label>
                     <Input
                         id="prep_time"
-                        type="number"
-                        min="0"
-                        value={data.prep_time_minutes}
-                        onChange={(e) => setData('prep_time_minutes', parseInt(e.target.value) || 0)}
+                        type="text"
+                        value={data.prep_time_minutes.toString()}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            const parsed = parseInt(value);
+                            if (!isNaN(parsed) && parsed >= 0) {
+                                setData('prep_time_minutes', parsed);
+                            } else if (value === '') {
+                                setData('prep_time_minutes', 0);
+                            }
+                        }}
+                        placeholder="0"
                         className={errors.prep_time_minutes ? 'border-destructive' : ''}
                     />
                     {errors.prep_time_minutes && (
@@ -163,10 +179,18 @@ export default function InformationStep({ data, setData, errors }: InformationSt
                     </Label>
                     <Input
                         id="cook_time"
-                        type="number"
-                        min="0"
-                        value={data.cook_time_minutes}
-                        onChange={(e) => setData('cook_time_minutes', parseInt(e.target.value) || 0)}
+                        type="text"
+                        value={data.cook_time_minutes.toString()}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            const parsed = parseInt(value);
+                            if (!isNaN(parsed) && parsed >= 0) {
+                                setData('cook_time_minutes', parsed);
+                            } else if (value === '') {
+                                setData('cook_time_minutes', 0);
+                            }
+                        }}
+                        placeholder="0"
                         className={errors.cook_time_minutes ? 'border-destructive' : ''}
                     />
                     {errors.cook_time_minutes && (

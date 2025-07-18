@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Combobox } from '@/components/ui/combobox';
+import { MultiSelect } from '@/components/ui/multi-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Plus, X } from 'lucide-react';
@@ -24,6 +25,7 @@ interface Tag {
 interface Ingredient {
     id: string;
     name: string;
+    units?: Unit[]; // Units available for this ingredient
 }
 
 interface Unit {
@@ -34,7 +36,7 @@ interface Unit {
 
 interface RecipeIngredient {
     ingredient_id: string;
-    quantity: number;
+    quantity: string; // Changed to string to allow "1/2", "half", etc.
     unit_id: string;
     notes: string;
     is_optional: boolean;
@@ -65,7 +67,7 @@ export default function CategoryTagsIngredientsStep({
 }: CategoryTagsIngredientsStepProps) {
     const [newIngredient, setNewIngredient] = useState<RecipeIngredient>({
         ingredient_id: '',
-        quantity: 1,
+        quantity: '1',
         unit_id: '',
         notes: '',
         is_optional: false,
@@ -89,20 +91,31 @@ export default function CategoryTagsIngredientsStep({
         label: `${unit.name} (${unit.abbreviation})`,
     }));
 
-    const handleTagToggle = (tagId: string) => {
-        const currentTags = data.tag_ids;
-        const updatedTags = currentTags.includes(tagId)
-            ? currentTags.filter(id => id !== tagId)
-            : [...currentTags, tagId];
-        setData('tag_ids', updatedTags);
+    // Transform tags for multi-select
+    const tagOptions = tags.map(tag => ({
+        value: tag.id,
+        label: tag.name,
+    }));
+
+    // Get available units for the selected ingredient
+    const getAvailableUnits = (ingredientId: string) => {
+        const ingredient = ingredients.find(ing => ing.id === ingredientId);
+        if (ingredient?.units && ingredient.units.length > 0) {
+            return ingredient.units.map(unit => ({
+                value: unit.id,
+                label: `${unit.name} (${unit.abbreviation})`,
+            }));
+        }
+        // Fallback to all units if ingredient doesn't have specific units
+        return unitOptions;
     };
 
     const addIngredient = () => {
-        if (newIngredient.ingredient_id && newIngredient.unit_id && newIngredient.quantity > 0) {
+        if (newIngredient.ingredient_id && newIngredient.unit_id && newIngredient.quantity.trim()) {
             setData('ingredients', [...data.ingredients, { ...newIngredient }]);
             setNewIngredient({
                 ingredient_id: '',
-                quantity: 1,
+                quantity: '1',
                 unit_id: '',
                 notes: '',
                 is_optional: false,
@@ -151,49 +164,14 @@ export default function CategoryTagsIngredientsStep({
             {/* Tags Selection */}
             <div className="space-y-4">
                 <Label>Tags (Optional)</Label>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                    {tags.map((tag) => (
-                        <div key={tag.id} className="flex items-center space-x-2">
-                            <Checkbox
-                                id={`tag-${tag.id}`}
-                                checked={data.tag_ids.includes(tag.id)}
-                                onCheckedChange={() => handleTagToggle(tag.id)}
-                            />
-                            <Label
-                                htmlFor={`tag-${tag.id}`}
-                                className="text-sm font-normal cursor-pointer"
-                            >
-                                {tag.name}
-                                {tag.is_public && (
-                                    <Badge variant="secondary" className="ml-1 text-xs">
-                                        Public
-                                    </Badge>
-                                )}
-                            </Label>
-                        </div>
-                    ))}
-                </div>
-                {data.tag_ids.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                        {data.tag_ids.map((tagId) => {
-                            const tag = tags.find(t => t.id === tagId);
-                            return tag ? (
-                                <Badge key={tagId} variant="outline">
-                                    {tag.name}
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        className="ml-1 h-auto p-0"
-                                        onClick={() => handleTagToggle(tagId)}
-                                    >
-                                        <X className="h-3 w-3" />
-                                    </Button>
-                                </Badge>
-                            ) : null;
-                        })}
-                    </div>
-                )}
+                <MultiSelect
+                    options={tagOptions}
+                    onValueChange={(selectedTagIds) => setData('tag_ids', selectedTagIds)}
+                    defaultValue={data.tag_ids}
+                    placeholder="Select tags..."
+                    maxCount={3}
+                    className="w-full"
+                />
             </div>
 
             {/* Ingredients */}
@@ -203,7 +181,7 @@ export default function CategoryTagsIngredientsStep({
                 </Label>
 
                 {/* Add New Ingredient */}
-                <Card>
+                <Card className='mt-4'>
                     <CardHeader>
                         <CardTitle className="text-lg">Add Ingredient</CardTitle>
                     </CardHeader>
@@ -214,7 +192,11 @@ export default function CategoryTagsIngredientsStep({
                                 <Combobox
                                     options={ingredientOptions}
                                     value={newIngredient.ingredient_id}
-                                    onValueChange={(value) => setNewIngredient({ ...newIngredient, ingredient_id: value })}
+                                    onValueChange={(value) => setNewIngredient({
+                                        ...newIngredient,
+                                        ingredient_id: value,
+                                        unit_id: '' // Clear unit when ingredient changes
+                                    })}
                                     placeholder="Select ingredient..."
                                     allowEmpty={false}
                                 />
@@ -223,11 +205,10 @@ export default function CategoryTagsIngredientsStep({
                                 <Label htmlFor="new-quantity">Quantity</Label>
                                 <Input
                                     id="new-quantity"
-                                    type="number"
-                                    min="0"
-                                    step="0.1"
+                                    type="text"
                                     value={newIngredient.quantity}
-                                    onChange={(e) => setNewIngredient({ ...newIngredient, quantity: parseFloat(e.target.value) || 0 })}
+                                    onChange={(e) => setNewIngredient({ ...newIngredient, quantity: e.target.value })}
+                                    placeholder="e.g., 1, 1/2, 2 cups, half"
                                 />
                             </div>
                             <div>
@@ -235,12 +216,13 @@ export default function CategoryTagsIngredientsStep({
                                 <Select
                                     value={newIngredient.unit_id}
                                     onValueChange={(value) => setNewIngredient({ ...newIngredient, unit_id: value })}
+                                    disabled={!newIngredient.ingredient_id}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select unit" />
+                                        <SelectValue placeholder={newIngredient.ingredient_id ? "Select unit" : "Select ingredient first"} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {unitOptions.map((unit) => (
+                                        {getAvailableUnits(newIngredient.ingredient_id).map((unit) => (
                                             <SelectItem key={unit.value} value={unit.value}>
                                                 {unit.label}
                                             </SelectItem>
@@ -271,7 +253,7 @@ export default function CategoryTagsIngredientsStep({
                         <Button
                             type="button"
                             onClick={addIngredient}
-                            disabled={!newIngredient.ingredient_id || !newIngredient.unit_id || newIngredient.quantity <= 0}
+                            disabled={!newIngredient.ingredient_id || !newIngredient.unit_id || !newIngredient.quantity.trim()}
                         >
                             <Plus className="h-4 w-4 mr-2" />
                             Add Ingredient

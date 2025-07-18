@@ -38,7 +38,7 @@ class StoreRecipeRequest extends FormRequest
             'tag_ids.*' => 'exists:tags,id',
             'ingredients' => 'required|array|min:1',
             'ingredients.*.ingredient_id' => 'required|exists:ingredients,id',
-            'ingredients.*.quantity' => 'required|numeric|min:0',
+            'ingredients.*.quantity' => 'required|string|max:50',
             'ingredients.*.unit_id' => 'required|exists:units,id',
             'ingredients.*.notes' => 'nullable|string|max:255',
             'ingredients.*.is_optional' => 'boolean',

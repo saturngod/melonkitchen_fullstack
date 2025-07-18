@@ -54,7 +54,7 @@ interface RecipeFormData {
     tag_ids: string[];
     ingredients: Array<{
         ingredient_id: string;
-        quantity: number;
+        quantity: string; // Changed to string to allow "1/2", "half", etc.
         unit_id: string;
         notes: string;
         is_optional: boolean;

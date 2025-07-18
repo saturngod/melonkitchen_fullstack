@@ -47,7 +47,7 @@ class RecipeController extends Controller
             'tags' => \App\Models\Tag::where('is_public', true)
                 ->orWhere('created_user_id', auth()->id())
                 ->get(),
-            'ingredients' => \App\Models\Ingredient::all(),
+            'ingredients' => \App\Models\Ingredient::with('units')->get(),
             'units' => \App\Models\Unit::all(),
         ]);
     }
