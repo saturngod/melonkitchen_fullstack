@@ -46,7 +46,7 @@ export default function EditRecipe({ recipe, categories, tags, ingredients, unit
         youtube_url: recipe.youtube_url || '',
         category_id: recipe.categories?.[0]?.id || '',
         tag_ids: recipe.tags?.map(tag => tag.id) || [],
-        ingredients: recipe.recipeIngredients?.map(ingredient => ({
+        ingredients: recipe.recipe_ingredients?.map(ingredient => ({
             ingredient_id: ingredient.ingredient.id,
             quantity: ingredient.quantity || '',
             unit_id: ingredient.unit?.id || '',
