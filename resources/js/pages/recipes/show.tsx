@@ -22,6 +22,9 @@ export default function RecipeShow({ recipe }: RecipeShowProps) {
     const [networkError, setNetworkError] = useState(false);
     const { errors } = usePage().props;
 
+    console.log(recipe)
+    console.log(recipe.recipe_ingredients)
+
     // Handle network errors
     useEffect(() => {
         const handleOnline = () => setNetworkError(false);
@@ -197,7 +200,7 @@ export default function RecipeShow({ recipe }: RecipeShowProps) {
                                     </svg>
                                     Ingredients
                                 </h2>
-                                <RecipeIngredients ingredients={recipe.recipeIngredients} />
+                                <RecipeIngredients ingredients={recipe.recipe_ingredients} />
                             </div>
 
                             {/* Nutrition Card */}

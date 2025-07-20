@@ -120,5 +120,5 @@ export interface RecipeIngredient {
 export interface DetailedRecipe extends Recipe {
     instructions: RecipeInstruction[];
     nutritionInfo?: NutritionInfo;
-    recipeIngredients: RecipeIngredient[];
+    recipe_ingredients: RecipeIngredient[];
 }
