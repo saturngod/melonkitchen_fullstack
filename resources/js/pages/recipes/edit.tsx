@@ -98,7 +98,7 @@ export default function EditRecipe({ recipe, categories, tags, ingredients, unit
                     Update your recipe by modifying the fields below.
                 </p>
             </div>
-            
+
             <RecipeForm
                 initialData={initialData}
                 categories={categories}

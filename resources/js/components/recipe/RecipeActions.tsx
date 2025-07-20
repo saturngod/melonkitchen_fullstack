@@ -22,6 +22,7 @@ export default function RecipeActions({ recipe }: RecipeActionsProps) {
     const handleEdit = () => {
         // Navigate to edit page (placeholder for now since edit functionality isn't implemented yet)
         console.log('Edit recipe:', recipe.id);
+        router.get(route('recipes.edit', { recipe: recipe.id }));
         // router.get(route('recipes.edit', { recipe: recipe.id }));
     };
 
