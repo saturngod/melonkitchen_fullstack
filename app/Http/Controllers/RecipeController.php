@@ -118,9 +118,10 @@ class RecipeController extends Controller
             if (!empty($validated['tag_ids'])) {
                 $recipe->tags()->attach($validated['tag_ids']);
             }
-
+            
             // Add ingredients
             foreach ($validated['ingredients'] as $ingredient) {
+                
                 $recipe->recipeIngredients()->create([
                     'ingredient_id' => $ingredient['ingredient_id'],
                     'quantity' => $ingredient['quantity'],

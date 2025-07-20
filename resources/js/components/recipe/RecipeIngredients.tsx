@@ -39,14 +39,7 @@ export default function RecipeIngredients({ ingredients }: RecipeIngredientsProp
                                 key={recipeIngredient.id}
                                 className="flex items-start space-x-4 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                             >
-                                {/* Checkbox for ingredient tracking */}
-                                <div className="flex-shrink-0 mt-1">
-                                    <input
-                                        type="checkbox"
-                                        className="w-4 h-4 rounded border"
-                                        aria-label={`Mark ${recipeIngredient.ingredient.name} as completed`}
-                                    />
-                                </div>
+
 
                                 {/* Ingredient details */}
                                 <div className="flex-1 min-w-0">

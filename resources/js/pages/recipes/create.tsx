@@ -1,5 +1,5 @@
-import React from 'react';
-import { Head, useForm, router } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import RecipeForm, { RecipeFormData } from '@/components/recipe/RecipeForm';
 
@@ -34,6 +34,9 @@ interface CreateRecipeProps {
 }
 
 export default function CreateRecipe({ categories, tags, ingredients, units }: CreateRecipeProps) {
+    const [processing, setProcessing] = useState(false);
+    const [errors, setErrors] = useState({});
+
     const initialData: RecipeFormData = {
         title: '',
         description: '',
@@ -49,16 +52,21 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
         nutrition: {},
     };
 
-    const { data, setData, post, processing, errors } = useForm(initialData);
-
     const handleSubmit = (formData: RecipeFormData) => {
-        setData(formData);
-        post(route('recipes.store'), {
+        setProcessing(true);
+        setErrors({});
+
+        router.post(route('recipes.store'), formData, {
             onSuccess: () => {
                 router.get(route('recipes.index'));
             },
-            onError: (errors) => {
+            onError: (errors: any) => {
                 console.log('Form submission errors:', errors);
+                setErrors(errors);
+                setProcessing(false);
+            },
+            onFinish: () => {
+                setProcessing(false);
             }
         });
     };

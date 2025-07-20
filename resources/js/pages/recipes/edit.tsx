@@ -36,6 +36,9 @@ interface EditRecipeProps {
 }
 
 export default function EditRecipe({ recipe, categories, tags, ingredients, units }: EditRecipeProps) {
+    const [processing, setProcessing] = React.useState(false);
+    const [errors, setErrors] = React.useState({});
+
     const initialData: RecipeFormData = {
         title: recipe.title || '',
         description: recipe.description || '',
@@ -69,16 +72,20 @@ export default function EditRecipe({ recipe, categories, tags, ingredients, unit
         },
     };
 
-    const { data, setData, put, processing, errors } = useForm(initialData);
-
     const handleSubmit = (formData: RecipeFormData) => {
-        setData(formData);
-        put(route('recipes.update', { recipe: recipe.id }), {
+        console.log('Submitting form data:', formData);
+        setProcessing(true);
+        setErrors({});
+
+        router.put(route('recipes.update', { recipe: recipe.id }), formData, {
             onSuccess: () => {
+                setProcessing(false);
                 router.get(route('recipes.index'));
             },
             onError: (errors) => {
                 console.log('Form submission errors:', errors);
+                setErrors(errors);
+                setProcessing(false);
             }
         });
     };

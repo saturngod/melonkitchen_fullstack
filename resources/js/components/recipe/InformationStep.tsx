@@ -54,8 +54,21 @@ export default function InformationStep({ data, setData, errors }: InformationSt
         type="number"
         value={data.servings}
         onChange={e => {
-          const parsed = parseInt(e.target.value, 10);
-          setData({ servings: isNaN(parsed) ? 1 : parsed });
+          const value = e.target.value;
+          if (value === '') {
+            setData({ servings: '' as any }); // Allow empty during editing
+          } else {
+            const parsed = parseInt(value, 10);
+            if (!isNaN(parsed) && parsed >= 1) {
+              setData({ servings: parsed });
+            }
+          }
+        }}
+        onBlur={e => {
+          const value = e.target.value;
+          if (value === '' || isNaN(parseInt(value, 10))) {
+            setData({ servings: 1 }); // Set to minimum when field loses focus
+          }
         }}
         min={1}
         className={errors.servings ? 'border-red-500' : ''}
@@ -81,8 +94,21 @@ export default function InformationStep({ data, setData, errors }: InformationSt
         type="number"
         value={data.prep_time_minutes}
         onChange={e => {
-          const parsed = parseInt(e.target.value, 10);
-          setData({ prep_time_minutes: isNaN(parsed) ? 0 : parsed });
+          const value = e.target.value;
+          if (value === '') {
+            setData({ prep_time_minutes: '' as any }); // Allow empty during editing
+          } else {
+            const parsed = parseInt(value, 10);
+            if (!isNaN(parsed) && parsed >= 0) {
+              setData({ prep_time_minutes: parsed });
+            }
+          }
+        }}
+        onBlur={e => {
+          const value = e.target.value;
+          if (value === '' || isNaN(parseInt(value, 10))) {
+            setData({ prep_time_minutes: 0 }); // Set to minimum when field loses focus
+          }
         }}
         min={0}
         className={errors.prep_time_minutes ? 'border-red-500' : ''}
@@ -95,8 +121,21 @@ export default function InformationStep({ data, setData, errors }: InformationSt
         type="number"
         value={data.cook_time_minutes}
         onChange={e => {
-          const parsed = parseInt(e.target.value, 10);
-          setData({ cook_time_minutes: isNaN(parsed) ? 0 : parsed });
+          const value = e.target.value;
+          if (value === '') {
+            setData({ cook_time_minutes: '' as any }); // Allow empty during editing
+          } else {
+            const parsed = parseInt(value, 10);
+            if (!isNaN(parsed) && parsed >= 0) {
+              setData({ cook_time_minutes: parsed });
+            }
+          }
+        }}
+        onBlur={e => {
+          const value = e.target.value;
+          if (value === '' || isNaN(parseInt(value, 10))) {
+            setData({ cook_time_minutes: 0 }); // Set to minimum when field loses focus
+          }
         }}
         min={0}
         className={errors.cook_time_minutes ? 'border-red-500' : ''}
