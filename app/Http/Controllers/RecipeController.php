@@ -38,6 +38,33 @@ class RecipeController extends Controller
     }
 
     /**
+     * Display the specified recipe.
+     */
+    public function show(string $id): Response
+    {
+        $recipe = Recipe::with([
+            'categories.parent',
+            'tags',
+            'user',
+            'instructions' => function ($query) {
+                $query->orderBy('step_number');
+            },
+            'nutritionInfo',
+            'recipeIngredients.ingredient',
+            'recipeIngredients.unit'
+        ])->findOrFail($id);
+
+        // Check if user can view this recipe
+        if (!$recipe->is_public && $recipe->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized to view this recipe');
+        }
+
+        return Inertia::render('recipes/show', [
+            'recipe' => $recipe
+        ]);
+    }
+
+    /**
      * Show the form for creating a new recipe.
      */
     public function create(): Response

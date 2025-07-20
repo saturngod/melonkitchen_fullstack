@@ -71,9 +71,54 @@ export interface Recipe {
     cook_time_minutes?: number;
     servings?: number;
     difficulty?: string;
+    youtube_url?: string;
     categories: Category[];
     tags: Tag[];
     user: User;
     created_at: string;
     updated_at: string;
+}
+
+export interface RecipeInstruction {
+    id: string;
+    step_number: number;
+    instruction: string;
+    image_url?: string;
+}
+
+export interface NutritionInfo {
+    id: string;
+    calories_per_serving?: number;
+    protein_grams?: number;
+    carbs_grams?: number;
+    fat_grams?: number;
+    fiber_grams?: number;
+    sugar_grams?: number;
+    sodium_mg?: number;
+}
+
+export interface Ingredient {
+    id: string;
+    name: string;
+}
+
+export interface Unit {
+    id: string;
+    name: string;
+    abbreviation: string;
+}
+
+export interface RecipeIngredient {
+    id: string;
+    quantity?: string;
+    notes?: string;
+    is_optional: boolean;
+    ingredient: Ingredient;
+    unit?: Unit;
+}
+
+export interface DetailedRecipe extends Recipe {
+    instructions: RecipeInstruction[];
+    nutritionInfo?: NutritionInfo;
+    recipeIngredients: RecipeIngredient[];
 }

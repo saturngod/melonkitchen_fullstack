@@ -1,4 +1,4 @@
-import React from 'react';
+import { router } from '@inertiajs/react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
@@ -30,14 +30,32 @@ export default function RecipeCard({ recipe, onTogglePublic, onEdit, onDelete }:
         }).join(', ');
     };
 
+    const handleCardClick = (e: React.MouseEvent) => {
+        // Prevent navigation if clicking on interactive elements
+        const target = e.target as HTMLElement;
+        const isInteractive = target.closest('button, [role="switch"], [role="menuitem"]');
+
+        if (!isInteractive) {
+            router.get(route('recipes.show', { recipe: recipe.id }));
+        }
+    };
+
     return (
-        <Card className="h-full flex flex-col relative pt-0 gap-0">
+        <Card
+            className="h-full flex flex-col relative pt-0 gap-0 cursor-pointer hover:shadow-lg transition-shadow duration-200"
+            onClick={handleCardClick}
+        >
             <CardHeader className="p-0 relative">
                 {/* Three-dot dropdown menu */}
                 <div className="absolute top-2 right-2 z-10">
-                    <DropdownMenu modal={false} >
+                    <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 bg-white/80 hover:bg-white">
+                            <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 bg-white/80 hover:bg-white"
+                                onClick={(e) => e.stopPropagation()}
+                            >
                                 <span className="sr-only">Open menu</span>
                                 ⋮
                             </Button>
@@ -103,6 +121,7 @@ export default function RecipeCard({ recipe, onTogglePublic, onEdit, onDelete }:
                         <Switch
                             checked={recipe.is_public}
                             onCheckedChange={(checked) => onTogglePublic(recipe.id, checked)}
+                            onClick={(e) => e.stopPropagation()}
                         />
                     </div>
 

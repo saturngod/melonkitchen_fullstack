@@ -18,7 +18,8 @@ class TagFactory extends Factory
     {
         return [
             'name' => fake()->word(),
-            'color' => fake()->hexColor(),
+            'is_public' => fake()->boolean(),
+            'created_user_id' => \App\Models\User::factory(),
         ];
     }
 }

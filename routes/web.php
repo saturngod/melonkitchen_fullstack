@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Recipe management
         Route::resource('recipes', \App\Http\Controllers\RecipeController::class)
-        ->only(['index', 'create', 'store', 'update', 'destroy']);
+        ->only(['index', 'create', 'store', 'show', 'update', 'destroy']);
         
         // Recipe toggle public status
         Route::patch('recipes/{recipe}/toggle-public', [\App\Http\Controllers\RecipeController::class, 'togglePublic'])
