@@ -16,9 +16,9 @@ class DatabaseSeeder extends Seeder
         if (User::where('email', 'test@example.com')->doesntExist()) {
             User::factory()->create([
                 'name' => 'Test User',
-                'email' => 'test@example.com',
-                'username' => 'testuser',
-                'first_name' => 'Test',
+                'email' => 'admin@melonkitchen.com',
+                'username' => 'admin',
+                'first_name' => 'Admin',
                 'last_name' => 'User',
                 'password' => bcrypt('password'),
                 'role' => \App\Enums\UserRole::ADMIN,
