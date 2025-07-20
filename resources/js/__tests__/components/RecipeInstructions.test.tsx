@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import RecipeInstructions from '@/components/recipe/RecipeInstructions';
 import { RecipeInstruction } from '@/types';
 
@@ -28,100 +28,35 @@ describe('RecipeInstructions', () => {
     test('renders all instructions in correct order', () => {
         render(<RecipeInstructions instructions={mockInstructions} />);
 
-        expect(screen.getByText('Step 1')).toBeInTheDocument();
-        expect(screen.getByText('Step 2')).toBeInTheDocument();
-        expect(screen.getByText('Step 3')).toBeInTheDocument();
+        expect(screen.getByText('1')).toBeInTheDocument();
+        expect(screen.getByText('2')).toBeInTheDocument();
+        expect(screen.getByText('3')).toBeInTheDocument();
 
         expect(screen.getByText(/Preheat oven to 350°F/)).toBeInTheDocument();
         expect(screen.getByText(/cream together butter and sugar/)).toBeInTheDocument();
         expect(screen.getByText(/Beat in eggs one at a time/)).toBeInTheDocument();
     });
 
-    test('displays progress tracking', () => {
-        render(<RecipeInstructions instructions={mockInstructions} />);
-
-        expect(screen.getByText('0 of 3 steps completed')).toBeInTheDocument();
-        expect(screen.getByText('0%')).toBeInTheDocument();
-    });
-
-    test('allows marking steps as complete', () => {
-        render(<RecipeInstructions instructions={mockInstructions} />);
-
-        const step1Button = screen.getByLabelText('Mark step 1 as complete');
-        fireEvent.click(step1Button);
-
-        expect(screen.getByText('1 of 3 steps completed')).toBeInTheDocument();
-        expect(screen.getByText('33%')).toBeInTheDocument();
-    });
-
-    test('allows unmarking completed steps', () => {
-        render(<RecipeInstructions instructions={mockInstructions} />);
-
-        const step1Button = screen.getByLabelText('Mark step 1 as complete');
-
-        // Mark as complete
-        fireEvent.click(step1Button);
-        expect(screen.getByText('1 of 3 steps completed')).toBeInTheDocument();
-
-        // Unmark
-        const step1ButtonIncomplete = screen.getByLabelText('Mark step 1 as incomplete');
-        fireEvent.click(step1ButtonIncomplete);
-        expect(screen.getByText('0 of 3 steps completed')).toBeInTheDocument();
-    });
-
-    test('displays completion message when all steps are done', () => {
-        render(<RecipeInstructions instructions={mockInstructions} />);
-
-        // Mark all steps as complete
-        const step1Button = screen.getByLabelText('Mark step 1 as complete');
-        const step2Button = screen.getByLabelText('Mark step 2 as complete');
-        const step3Button = screen.getByLabelText('Mark step 3 as complete');
-
-        fireEvent.click(step1Button);
-        fireEvent.click(step2Button);
-        fireEvent.click(step3Button);
-
-        expect(screen.getByText('Recipe completed! Great job!')).toBeInTheDocument();
-        expect(screen.getByText('100%')).toBeInTheDocument();
-    });
-
     test('displays step images when available', () => {
         render(<RecipeInstructions instructions={mockInstructions} />);
 
-        const stepImage = screen.getByAltText('Step 1 illustration');
+        const stepImage = screen.getByAltText('Step 1 visual guide');
         expect(stepImage).toBeInTheDocument();
         expect(stepImage).toHaveAttribute('src', 'https://example.com/step1.jpg');
-    });
-
-    test('handles image loading errors', () => {
-        render(<RecipeInstructions instructions={mockInstructions} />);
-
-        const stepImage = screen.getByAltText('Step 1 illustration');
-        fireEvent.error(stepImage);
-
-        // Image should be removed from DOM after error
-        expect(screen.queryByAltText('Step 1 illustration')).not.toBeInTheDocument();
-    });
-
-    test('displays cooking tip', () => {
-        render(<RecipeInstructions instructions={mockInstructions} />);
-
-        expect(screen.getByText('Cooking Tip')).toBeInTheDocument();
-        expect(screen.getByText(/Check off each step as you complete it/)).toBeInTheDocument();
     });
 
     test('handles empty instructions list', () => {
         render(<RecipeInstructions instructions={[]} />);
 
-        expect(screen.getByText('No instructions provided')).toBeInTheDocument();
-        expect(screen.queryByText('Cooking Tip')).not.toBeInTheDocument();
+        expect(screen.getByText('No Instructions Available')).toBeInTheDocument();
+        expect(screen.getByText('This recipe doesn\'t have any cooking instructions yet.')).toBeInTheDocument();
     });
 
     test('handles null instructions list', () => {
         // @ts-ignore - Testing edge case
         render(<RecipeInstructions instructions={null} />);
 
-        expect(screen.getByText('No instructions provided')).toBeInTheDocument();
+        expect(screen.getByText('No Instructions Available')).toBeInTheDocument();
     });
 
     test('sorts instructions by step number', () => {
@@ -148,41 +83,64 @@ describe('RecipeInstructions', () => {
 
         render(<RecipeInstructions instructions={unorderedInstructions} />);
 
-        const steps = screen.getAllByText(/Step \d/);
-        expect(steps[0]).toHaveTextContent('Step 1');
-        expect(steps[1]).toHaveTextContent('Step 2');
-        expect(steps[2]).toHaveTextContent('Step 3');
+        const tableRows = screen.getByRole('table').querySelectorAll('tbody tr');
+        expect(tableRows[0]).toHaveTextContent('1');
+        expect(tableRows[0]).toHaveTextContent('First step');
+        expect(tableRows[1]).toHaveTextContent('2');
+        expect(tableRows[1]).toHaveTextContent('Second step');
+        expect(tableRows[2]).toHaveTextContent('3');
+        expect(tableRows[2]).toHaveTextContent('Third step');
     });
 
-    test('applies completed styling to finished steps', () => {
+    test('displays step numbers with circular styling', () => {
         render(<RecipeInstructions instructions={mockInstructions} />);
 
-        const step1Button = screen.getByLabelText('Mark step 1 as complete');
-        fireEvent.click(step1Button);
-
-        // Check that completed step has different styling
-        const completedStep = screen.getByText('Step 1');
-        expect(completedStep).toHaveClass('line-through');
-        expect(completedStep).toHaveClass('text-muted-foreground');
+        const stepNumbers = screen.getAllByText(/^[123]$/);
+        stepNumbers.forEach((stepNumber) => {
+            const parent = stepNumber.closest('div');
+            expect(parent).toHaveClass('rounded-full');
+            expect(parent).toHaveClass('bg-primary');
+            expect(parent).toHaveClass('text-primary-foreground');
+        });
     });
 
-    test('shows step numbers in uncompleted steps', () => {
+    test('renders table structure correctly', () => {
         render(<RecipeInstructions instructions={mockInstructions} />);
 
-        // Initially, step buttons should show step numbers
-        const step1Button = screen.getByLabelText('Mark step 1 as complete');
-        expect(step1Button).toHaveTextContent('1');
+        expect(screen.getByRole('table')).toBeInTheDocument();
+
+        const tableRows = screen.getByRole('table').querySelectorAll('tbody tr');
+        expect(tableRows).toHaveLength(3);
+
+        // Each row should have 2 cells: step number and instruction content
+        tableRows.forEach((row) => {
+            const cells = row.querySelectorAll('td');
+            expect(cells).toHaveLength(2);
+        });
     });
 
-    test('shows checkmark in completed steps', () => {
+    test('does not display images when image_url is not provided', () => {
+        const instructionsWithoutImages: RecipeInstruction[] = [
+            {
+                id: '1',
+                step_number: 1,
+                instruction: 'Mix ingredients',
+                image_url: undefined,
+            },
+        ];
+
+        render(<RecipeInstructions instructions={instructionsWithoutImages} />);
+
+        expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    });
+
+    test('image has correct styling when present', () => {
         render(<RecipeInstructions instructions={mockInstructions} />);
 
-        const step1Button = screen.getByLabelText('Mark step 1 as complete');
-        fireEvent.click(step1Button);
-
-        // After completion, button should show checkmark (svg)
-        const completedButton = screen.getByLabelText('Mark step 1 as incomplete');
-        const checkmarkSvg = completedButton.querySelector('svg');
-        expect(checkmarkSvg).toBeInTheDocument();
+        const stepImage = screen.getByAltText('Step 1 visual guide');
+        expect(stepImage).toHaveClass('rounded-lg');
+        expect(stepImage).toHaveClass('border');
+        expect(stepImage).toHaveClass('shadow-sm');
+        expect(stepImage).toHaveClass('object-cover');
     });
 });
