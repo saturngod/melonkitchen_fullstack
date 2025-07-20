@@ -4,6 +4,9 @@ use App\Models\Recipe;
 use App\Models\User;
 use App\Models\Category;
 use App\Models\Tag;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 test('recipe has search scope', function () {
     $user = User::factory()->create();

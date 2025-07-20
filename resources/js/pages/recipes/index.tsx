@@ -56,8 +56,7 @@ export default function RecipeIndex({ recipes, filters }: RecipeIndexProps) {
     }
 
     function handleEdit(id: string) {
-        console.log('Edit recipe:', id);
-        // Placeholder for future implementation
+        router.get(route('recipes.edit', { recipe: id }));
     }
 
     function confirmDelete(id: string): void {

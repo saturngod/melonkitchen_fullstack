@@ -16,7 +16,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         Route::get('/', function () {
             return Inertia::render('dashboard');
-        })->name('dashboard.index');
+        })->name('dashboard');
         
         Route::resource('tags', TagController::class)
         ->only(['index', 'store', 'update', 'destroy']);
@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Recipe management
         Route::resource('recipes', \App\Http\Controllers\RecipeController::class)
-        ->only(['index', 'create', 'store', 'show', 'update', 'destroy']);
+        ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy']);
         
         // Recipe toggle public status
         Route::patch('recipes/{recipe}/toggle-public', [\App\Http\Controllers\RecipeController::class, 'togglePublic'])
