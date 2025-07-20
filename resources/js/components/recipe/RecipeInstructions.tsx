@@ -34,18 +34,14 @@ export default function RecipeInstructions({ instructions }: RecipeInstructionsP
                     {sortedInstructions.map((instruction) => (
                         <TableRow key={instruction.id} className="border-b">
                             {/* Step Number */}
-                            <TableCell className="w-20 align-top">
-                                <div className="flex items-center justify-center w-12 h-12 bg-primary text-primary-foreground rounded-full font-bold text-lg">
-                                    {instruction.step_number}
-                                </div>
-                            </TableCell>
+
 
                             {/* Instruction Content */}
                             <TableCell className="align-top py-6">
                                 <div className="space-y-4">
                                     {/* Instruction Text */}
                                     <div className="text-base leading-relaxed">
-                                        {instruction.instruction}
+                                        {instruction.step_number} . {instruction.instruction}
                                     </div>
 
                                     {/* Step Image (if available) */}
