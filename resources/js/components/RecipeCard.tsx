@@ -31,7 +31,7 @@ export default function RecipeCard({ recipe, onTogglePublic, onEdit, onDelete }:
     };
 
     return (
-        <Card className="h-full flex flex-col relative">
+        <Card className="h-full flex flex-col relative pt-0">
             <CardHeader className="p-0 relative">
                 {/* Three-dot dropdown menu */}
                 <div className="absolute top-2 right-2 z-10">
