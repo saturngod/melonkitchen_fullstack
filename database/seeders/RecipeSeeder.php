@@ -82,19 +82,23 @@ class RecipeSeeder extends Seeder
         }
 
         $ingredient = Ingredient::where('name', $ingredientName)->first();
-        if (!$ingredient) {
-            $ingredient = Ingredient::firstOrCreate(['name' => $ingredientName]);
+
+        if ($ingredient) {
+            $unit = $ingredient->units()->inRandomOrder()->first() ?? Unit::inRandomOrder()->first();
+
+            if ($unit) {
+                RecipeIngredient::firstOrCreate(
+                    [
+                        'recipe_id' => $recipe->id,
+                        'ingredient_id' => $ingredient->id,
+                    ],
+                    [
+                        'quantity' => 1,
+                        'unit_id' => $unit->id,
+                    ]
+                );
+            }
         }
-
-        $unit = $ingredient->units()->inRandomOrder()->first() ?? Unit::inRandomOrder()->first();
-
-        RecipeIngredient::firstOrCreate([
-            'recipe_id' => $recipe->id,
-            'ingredient_id' => $ingredient->id,
-        ], [
-            'quantity' => 1,
-            'unit_id' => $unit->id,
-        ]);
     }
 
     private function addInstructions(Recipe $recipe)
