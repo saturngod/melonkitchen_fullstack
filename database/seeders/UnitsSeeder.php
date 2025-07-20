@@ -12,52 +12,44 @@ class UnitsSeeder extends Seeder
     public function run(): void
     {
         $units = [
-            ['name' => 'Gram', 'abbreviation' => 'g', 'unit_type' => 'weight'],
-            ['name' => 'Kilogram', 'abbreviation' => 'kg', 'unit_type' => 'weight'],
-            ['name' => 'Milligram', 'abbreviation' => 'mg', 'unit_type' => 'weight'],
-            ['name' => 'Ounce', 'abbreviation' => 'oz', 'unit_type' => 'weight'],
-            ['name' => 'Pound', 'abbreviation' => 'lb', 'unit_type' => 'weight'],
-            ['name' => 'Milliliter', 'abbreviation' => 'ml', 'unit_type' => 'volume'],
-            ['name' => 'Liter', 'abbreviation' => 'l', 'unit_type' => 'volume'],
-            ['name' => 'Teaspoon', 'abbreviation' => 'tsp', 'unit_type' => 'volume'],
-            ['name' => 'Tablespoon', 'abbreviation' => 'tbsp', 'unit_type' => 'volume'],
-            ['name' => 'Cup', 'abbreviation' => 'cup', 'unit_type' => 'volume'],
-            ['name' => 'Piece', 'abbreviation' => 'piece', 'unit_type' => 'quantity'],
-            ['name' => 'Slice', 'abbreviation' => 'slice', 'unit_type' => 'quantity'],
-            ['name' => 'Clove', 'abbreviation' => 'clove', 'unit_type' => 'quantity'],
-            ['name' => 'Pinch', 'abbreviation' => 'pinch', 'unit_type' => 'quantity'],
-            ['name' => 'Sprig', 'abbreviation' => 'sprig', 'unit_type' => 'quantity'],
-            ['name' => 'Can', 'abbreviation' => 'can', 'unit_type' => 'quantity'],
-            ['name' => 'Bottle', 'abbreviation' => 'bottle', 'unit_type' => 'quantity'],
-            ['name' => 'Package', 'abbreviation' => 'package', 'unit_type' => 'quantity'],
-            ['name' => 'Bunch', 'abbreviation' => 'bunch', 'unit_type' => 'quantity'],
-            ['name' => 'Head', 'abbreviation' => 'head', 'unit_type' => 'quantity'],
-            ['name' => 'Stalk', 'abbreviation' => 'stalk', 'unit_type' => 'quantity'],
-            ['name' => 'Fillet', 'abbreviation' => 'fillet', 'unit_type' => 'quantity'],
-            ['name' => 'Tical', 'abbreviation' => 'tical', 'unit_type' => 'weight'],
-            ['name' => 'Viss', 'abbreviation' => 'viss', 'unit_type' => 'weight'],
-            ['name' => 'Serving', 'abbreviation' => 'ပွဲ', 'unit_type' => 'quantity'],
-            ['name' => 'Round', 'abbreviation' => 'လုံး', 'unit_type' => 'quantity'],
-            ['name' => 'Ring', 'abbreviation' => 'ကွင်း', 'unit_type' => 'quantity'],
-            ['name' => 'Segment', 'abbreviation' => 'စိတ်', 'unit_type' => 'quantity'],
-            ['name' => 'Clove (burmese)', 'abbreviation' => 'မွှာ', 'unit_type' => 'quantity'],
-            ['name' => 'Small Piece', 'abbreviation' => 'တက်', 'unit_type' => 'quantity'],
-            ['name' => 'Branch', 'abbreviation' => 'ခက်', 'unit_type' => 'quantity'],
-            ['name' => 'Pack', 'abbreviation' => 'ထုပ်', 'unit_type' => 'quantity'],
-            ['name' => 'Jar', 'abbreviation' => 'ဘူး', 'unit_type' => 'quantity'],
-            ['name' => 'Kyattha', 'abbreviation' => 'ကျပ်သား', 'unit_type' => 'weight'],
-            ['name' => 'Peittha', 'abbreviation' => 'ပိဿာ', 'unit_type' => 'weight'],
-            ['name' => 'Spoon', 'abbreviation' => 'ဇွန်း', 'unit_type' => 'volume'],
+            // Mass
+            ['name' => 'Gram', 'type' => 'mass'],
+            ['name' => 'Kilogram', 'type' => 'mass'],
+            ['name' => 'Viss', 'type' => 'mass'],
+            ['name' => 'Tical', 'type' => 'mass'],
+            ['name' => 'Pinch', 'type' => 'mass'],
+
+            // Volume
+            ['name' => 'Milliliter', 'type' => 'volume'],
+            ['name' => 'Liter', 'type' => 'volume'],
+            ['name' => 'Tablespoon', 'type' => 'volume'],
+            ['name' => 'Teaspoon', 'type' => 'volume'],
+            ['name' => 'Cup', 'type' => 'volume'],
+            ['name' => 'Spoon', 'type' => 'volume'],
+
+            // Quantity
+            ['name' => 'Piece', 'type' => 'quantity'],
+            ['name' => 'Bunch', 'type' => 'quantity'],
+            ['name' => 'Round', 'type' => 'quantity'],
+            ['name' => 'Clove', 'type' => 'quantity'],
+            ['name' => 'Clove (burmese)', 'type' => 'quantity'],
+            ['name' => 'Sprig', 'type' => 'quantity'],
+            ['name' => 'Head', 'type' => 'quantity'],
+            ['name' => 'Bulb', 'type' => 'quantity'],
+            ['name' => 'Slice', 'type' => 'quantity'],
+            ['name' => 'Inch', 'type' => 'quantity'],
+            ['name' => 'Can', 'type' => 'quantity'],
+            ['name' => 'Stalk', 'type' => 'quantity'],
+            ['name' => 'Leaf', 'type' => 'quantity'],
+            ['name' => 'Pod', 'type' => 'quantity'],
+            ['name' => 'Ear', 'type' => 'quantity'],
+            ['name' => 'Pack', 'type' => 'quantity'],
+            ['name' => 'Whole', 'type' => 'quantity'],
+            ['name' => 'Stick', 'type' => 'quantity'],
         ];
 
         foreach ($units as $unit) {
-            Unit::firstOrCreate(
-                ['name' => $unit['name']],
-                [
-                    'abbreviation' => $unit['abbreviation'],
-                    'unit_type' => $unit['unit_type']
-                ]
-            );
+            Unit::firstOrCreate($unit);
         }
     }
 }
