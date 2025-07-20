@@ -1,9 +1,9 @@
-import React, { useState, ChangeEvent, useEffect } from 'react';
-import { Head, router } from '@inertiajs/react';
+import { useState, ChangeEvent, useEffect } from 'react';
+import { Head, router, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import Control from '@/components/shared/Control';
+import ConfirmDialog from '@/components/shared/ConfirmDialog';
 import RecipeCard from '@/components/RecipeCard';
-import RecipeCardSkeleton from '@/components/RecipeCardSkeleton';
 import Pagination, { type PaginationMeta } from '@/components/ui/pagination';
 import { Recipe } from '@/types';
 
@@ -18,6 +18,10 @@ interface RecipeIndexProps {
 
 export default function RecipeIndex({ recipes, filters }: RecipeIndexProps) {
     const [search, setSearch] = useState(filters.search || '');
+    const [showDelete, setShowDelete] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+
+    const { delete: destroy } = useForm();
 
     // Debounced search functionality
     useEffect(() => {
@@ -40,8 +44,15 @@ export default function RecipeIndex({ recipes, filters }: RecipeIndexProps) {
     }
 
     function handleTogglePublic(id: string, isPublic: boolean) {
-        console.log('Toggle public status for recipe:', id, 'to:', isPublic);
-        // Placeholder for future implementation
+        router.patch(route('recipes.toggle-public', { recipe: id }),
+            { is_public: isPublic },
+            {
+                preserveState: true,
+                onError: (errors) => {
+                    console.error('Failed to toggle recipe visibility:', errors);
+                }
+            }
+        );
     }
 
     function handleEdit(id: string) {
@@ -49,9 +60,17 @@ export default function RecipeIndex({ recipes, filters }: RecipeIndexProps) {
         // Placeholder for future implementation
     }
 
-    function handleDelete(id: string) {
-        console.log('Delete recipe:', id);
-        // Placeholder for future implementation
+    function confirmDelete(id: string): void {
+        setDeleteId(id);
+        setShowDelete(true);
+    }
+
+    function handleDelete(): void {
+        if (deleteId) {
+            destroy(route('recipes.destroy', { recipe: deleteId }), {
+                onSuccess: () => setShowDelete(false),
+            });
+        }
     }
 
     const breadcrumbs = [
@@ -89,7 +108,7 @@ export default function RecipeIndex({ recipes, filters }: RecipeIndexProps) {
                                 recipe={recipe}
                                 onTogglePublic={handleTogglePublic}
                                 onEdit={handleEdit}
-                                onDelete={handleDelete}
+                                onDelete={confirmDelete}
                             />
                         ))}
                     </div>
@@ -97,6 +116,15 @@ export default function RecipeIndex({ recipes, filters }: RecipeIndexProps) {
                     <Pagination meta={recipes} />
                 </>
             )}
+
+            <ConfirmDialog
+                open={showDelete}
+                onOpenChange={setShowDelete}
+                title="Delete Recipe"
+                description="Are you sure you want to delete this recipe? This action cannot be undone."
+                onConfirm={handleDelete}
+                destructive
+            />
         </AppLayout>
     );
 }

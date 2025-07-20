@@ -149,10 +149,34 @@ class RecipeController extends Controller
     }
 
     /**
+     * Toggle the public status of the specified recipe.
+     */
+    public function togglePublic(Request $request, Recipe $recipe)
+    {
+        // Check if user can modify this recipe
+        if ($recipe->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'is_public' => 'required|boolean',
+        ]);
+
+        $recipe->update([
+            'is_public' => $validated['is_public'],
+        ]);
+
+        return redirect()->back()->with('success', 'Recipe has been updated');
+    }
+
+    /**
      * Remove the specified recipe.
      */
     public function destroy(string $id)
     {
         // Placeholder for future implementation
+        $recipe = Recipe::findOrFail($id);
+        $recipe->delete();
+        return redirect()->route('recipes.index')->with('success', 'Recipe deleted successfully!');
     }
 }

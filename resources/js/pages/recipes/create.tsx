@@ -99,7 +99,7 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
         title: '',
         description: '',
         servings: 1,
-        difficulty: 'easy' as 'easy',
+        difficulty: 'easy' as const,
         prep_time_minutes: 0,
         cook_time_minutes: 0,
         youtube_url: '',

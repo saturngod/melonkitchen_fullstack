@@ -35,7 +35,7 @@ export default function RecipeCard({ recipe, onTogglePublic, onEdit, onDelete }:
             <CardHeader className="p-0 relative">
                 {/* Three-dot dropdown menu */}
                 <div className="absolute top-2 right-2 z-10">
-                    <DropdownMenu>
+                    <DropdownMenu modal={false} >
                         <DropdownMenuTrigger asChild>
                             <Button size="icon" variant="ghost" className="h-8 w-8 bg-white/80 hover:bg-white">
                                 <span className="sr-only">Open menu</span>
