@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavGroup, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Boxes, Combine, Folder, LayoutGrid, PartyPopper, Tag } from 'lucide-react';
+import { BookOpen, Boxes, Combine, Folder, LayoutGrid, PartyPopper, Tag, User } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const navGroups: NavGroup[] = [
@@ -50,7 +50,11 @@ const navGroups: NavGroup[] = [
     {
         title: 'User Management',
         items: [
-
+            {
+                title: 'Users',
+                href: '/dashboard/users',
+                icon: User,
+            },
         ],
     },
 ];

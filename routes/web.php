@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\IngredientController;
 
@@ -17,7 +18,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', function () {
             return Inertia::render('dashboard');
         })->name('dashboard');
-        
+
+        Route::resources('users', UserController::class);
+
         Route::resource('tags', TagController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
