@@ -19,7 +19,6 @@ import {
     TableRow,
     TableCell,
 } from '@/components/ui/table';
-import Pagination, { type PaginationMeta } from '@/components/ui/pagination';
 
 interface User {
     id: string;
@@ -35,9 +34,7 @@ interface User {
 }
 
 interface UsersIndexProps {
-    users: {
-        data: User[];
-    } & PaginationMeta;
+    users: User[];
     filters?: {
         search?: string;
     };
@@ -46,8 +43,8 @@ interface UsersIndexProps {
 export default function UsersIndex({ users, filters }: UsersIndexProps) {
     const [search, setSearch] = useState(filters?.search || '');
 
-    // Ensure users is an array from paginated data
-    const usersList = Array.isArray((users as any)?.data) ? (users as any).data as User[] : [];
+    // Ensure users is an array
+    const usersList = Array.isArray(users) ? users : [];
 
     // Debounced search functionality (if needed later)
     useEffect(() => {
@@ -107,7 +104,13 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                                 <TableRow key={user.id}>
                                     <TableCell>
                                         <div className="flex items-center">
-
+                                            <div className="flex-shrink-0 h-10 w-10">
+                                                <img
+                                                    className="h-10 w-10 rounded-full"
+                                                    src={user.avatar}
+                                                    alt={user.name}
+                                                />
+                                            </div>
                                             <div className="ml-4">
                                                 <div className="text-sm font-medium">
                                                     {user.name}
@@ -165,7 +168,6 @@ export default function UsersIndex({ users, filters }: UsersIndexProps) {
                     </TableBody>
                 </Table>
             </div>
-            <Pagination meta={users as unknown as PaginationMeta} />
         </AppLayout>
     );
 }
