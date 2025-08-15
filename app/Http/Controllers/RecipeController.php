@@ -317,6 +317,41 @@ class RecipeController extends Controller
     /**
      * Remove the specified recipe.
      */
+    /**
+     * Display the specified recipe for public viewing.
+     * This method is used for unauthenticated users viewing public recipes.
+     */
+    public function publicShow(string $id): Response
+    {
+        $recipe = Recipe::with([
+            'categories.parent',
+            'tags',
+            'user',
+            'instructions' => function ($query) {
+                $query->orderBy('step_number');
+            },
+            'nutritionInfo',
+            'recipeIngredients.ingredient',
+            'recipeIngredients.unit'
+        ])->findOrFail($id);
+
+        // Only show public recipes for this route
+        if (!$recipe->is_public) {
+            abort(404, 'Recipe not found');
+        }
+
+        // Get categories for navigation dropdown
+        $categories = \App\Models\Category::whereNull('parent_id')
+            ->with('children')
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('Main/RecipeShow', [
+            'recipe' => $recipe,
+            'categories' => $categories,
+        ]);
+    }
+
     public function destroy(string $id)
     {
         // Placeholder for future implementation
