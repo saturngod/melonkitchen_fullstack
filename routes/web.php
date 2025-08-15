@@ -5,11 +5,9 @@ use Inertia\Inertia;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\IngredientController;
+use App\Http\Controllers\Main\HomeController;
 
-Route::get('/', function () {
-    \Log::info('Test log from web.php route');
-    return Inertia::render('welcome');
-})->name('home');
+Route::get('/', [HomeController::class,'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -19,7 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return Inertia::render('dashboard');
         })->name('dashboard');
 
-        Route::resources('users', UserController::class);
+        Route::resource('users', UserController::class);
 
         Route::resource('tags', TagController::class)
         ->only(['index', 'store', 'update', 'destroy']);
