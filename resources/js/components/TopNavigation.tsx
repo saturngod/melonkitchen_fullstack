@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import { 
+import {
     NavigationMenu,
     NavigationMenuContent,
     NavigationMenuItem,
@@ -53,38 +53,68 @@ export default function TopNavigation({ categories }: TopNavigationProps) {
                                             Categories
                                         </NavigationMenuTrigger>
                                         <NavigationMenuContent>
-                                            <div className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                                                <div className="row-span-3">
-                                                    <div className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md">
-                                                        <div className="mb-2 mt-4 text-lg font-medium">
-                                                            Recipe Categories
+                                            <div className="grid gap-3 p-6 md:w-[500px] lg:w-[600px]">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {/* Left Column - Main Categories */}
+                                                    <div className="space-y-1">
+                                                        <div className="mb-3">
+                                                            <h3 className="text-sm font-medium text-muted-foreground">Browse Categories</h3>
+                                                            <p className="text-xs text-muted-foreground">
+                                                                Find recipes by category type
+                                                            </p>
                                                         </div>
-                                                        <p className="text-sm leading-tight text-muted-foreground">
-                                                            Browse recipes by category to find exactly what you're looking for.
-                                                        </p>
+                                                        {categories.slice(0, 6).map((category) => (
+                                                            <div key={category.id} className="space-y-1">
+                                                                <Link
+                                                                    href={`/?category=${category.id}`}
+                                                                    className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                                                >
+                                                                    <div className="text-sm font-medium leading-none mb-1">
+                                                                        {category.name}
+                                                                    </div>
+                                                                    {category.children && category.children.length > 0 && (
+                                                                        <div className="text-xs text-muted-foreground">
+                                                                            {category.children.slice(0, 3).map(child => child.name).join(', ')}
+                                                                            {category.children.length > 3 && ` +${category.children.length - 3} more`}
+                                                                        </div>
+                                                                    )}
+                                                                </Link>
+                                                            </div>
+                                                        ))}
+                                                        {categories.length > 6 && (
+                                                            <div className="text-center pt-2">
+                                                                <Link
+                                                                    href="/categories"
+                                                                    className="text-sm text-primary hover:underline"
+                                                                >
+                                                                    View all categories
+                                                                </Link>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                </div>
-                                                <div className="space-y-1">
-                                                    {categories.slice(0, 6).map((category) => (
-                                                        <div key={category.id}>
-                                                            <Link
-                                                                href={`/?category=${category.id}`}
-                                                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                                                            >
-                                                                <div className="text-sm font-medium leading-none">
-                                                                    {category.name}
-                                                                </div>
-                                                            </Link>
-                                                        </div>
-                                                    ))}
-                                                    {categories.length > 6 && (
-                                                        <div className="text-center pt-2">
-                                                            <Link
-                                                                href="/categories"
-                                                                className="text-sm text-primary hover:underline"
-                                                            >
-                                                                View all categories
-                                                            </Link>
+
+                                                    {/* Right Column - Subcategories of Featured Category */}
+                                                    {categories.length > 0 && categories[0].children && categories[0].children.length > 0 && (
+                                                        <div className="space-y-1">
+                                                            <div className="mb-3">
+                                                                <h3 className="text-sm font-medium text-muted-foreground">
+                                                                    {categories[0].name} Subcategories
+                                                                </h3>
+                                                                <p className="text-xs text-muted-foreground">
+                                                                    Explore specific types
+                                                                </p>
+                                                            </div>
+                                                            {categories[0].children.slice(0, 8).map((subcategory) => (
+                                                                <Link
+                                                                    key={subcategory.id}
+                                                                    href={`/?category=${subcategory.id}`}
+                                                                    className="block select-none rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                                                >
+                                                                    <div className="text-sm leading-none">
+                                                                        {subcategory.name}
+                                                                    </div>
+                                                                </Link>
+                                                            ))}
                                                         </div>
                                                     )}
                                                 </div>

@@ -122,7 +122,7 @@ export default function PublicRecipeShow({ recipe, categories = [] }: PublicReci
                                             </div>
                                         </div>
                                     )}
-                                    
+
                                     {recipe.tags && recipe.tags.length > 0 && (
                                         <div>
                                             <h4 className="text-sm font-medium text-muted-foreground mb-2">Tags</h4>

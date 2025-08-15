@@ -49,6 +49,7 @@ export interface Category {
     name: string;
     parent_id?: string;
     parent?: Category;
+    children?: Category[];
     created_at: string;
     updated_at: string;
 }

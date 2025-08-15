@@ -9,9 +9,13 @@ interface HomePageProps {
         data: Recipe[];
     } & PaginationMeta;
     categories: Category[];
+    filters?: {
+        category?: string;
+        selectedCategory?: Category;
+    };
 }
 
-export default function HomePage({ recipes, categories }: HomePageProps) {
+export default function HomePage({ recipes, categories, filters }: HomePageProps) {
     // For public home page, we disable the management features
     const handleTogglePublic = (id: string, isPublic: boolean) => {
         // Do nothing - this is already handled by hiding the controls
@@ -31,7 +35,7 @@ export default function HomePage({ recipes, categories }: HomePageProps) {
     return (
         <>
             <Head title="MelonKitchen - Discover Amazing Recipes" />
-            
+
             {/* Top Navigation */}
             <TopNavigation categories={categories} />
 
@@ -44,7 +48,7 @@ export default function HomePage({ recipes, categories }: HomePageProps) {
                             Welcome to <span className="text-orange-600">MelonKitchen</span>
                         </h1>
                         <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-                            Discover amazing recipes from our community of home cooks. 
+                            Discover amazing recipes from our community of home cooks.
                             Find your next favorite dish and share your own culinary creations.
                         </p>
                     </div>
@@ -52,8 +56,40 @@ export default function HomePage({ recipes, categories }: HomePageProps) {
 
                 {/* Recipe List Section */}
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                    {/* Category Filter Display */}
+                    {filters?.selectedCategory && (
+                        <div className="mb-8">
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-sm font-medium text-blue-800">
+                                            Showing recipes in category:
+                                        </span>
+                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            {filters.selectedCategory.parent
+                                                ? `${filters.selectedCategory.parent.name} > ${filters.selectedCategory.name}`
+                                                : filters.selectedCategory.name
+                                            }
+                                        </span>
+                                    </div>
+                                    <a
+                                        href="/"
+                                        className="text-sm text-blue-600 hover:text-blue-500 hover:underline"
+                                    >
+                                        Clear filter
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="flex justify-between items-center mb-8">
-                        <h2 className="text-3xl font-bold text-gray-900">Latest Recipes</h2>
+                        <h2 className="text-3xl font-bold text-gray-900">
+                            {filters?.selectedCategory
+                                ? `${filters.selectedCategory.name} Recipes`
+                                : 'Latest Recipes'
+                            }
+                        </h2>
                         <p className="text-gray-600">
                             {recipes.data.length} of {recipes.total} recipes
                         </p>
