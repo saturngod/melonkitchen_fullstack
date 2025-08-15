@@ -28,10 +28,10 @@ class StoreUserRequest extends FormRequest
             'first_name' => 'nullable|string|max:255',
             'last_name' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'username' => 'required|string|max:255|unique:users,username',
+            'username' => 'nullable|string|max:255|unique:users,username',
             'password' => 'required|string|min:8|confirmed',
             'role' => ['required', Rule::enum(UserRole::class)],
-            'is_active' => 'boolean',
+            'is_active' => 'sometimes|boolean',
         ];
     }
 
@@ -61,7 +61,7 @@ class StoreUserRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         // Set default values
-        if (!$this->has('is_active')) {
+    if (!$this->has('is_active')) {
             $this->merge(['is_active' => true]);
         }
 

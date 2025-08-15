@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,5 +52,50 @@ class UserController extends Controller
                 'search' => $search,
             ],
         ]);
+    }
+
+    public function store(StoreUserRequest $request)
+    {
+        $validated = $request->validated();
+        $data = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'username' => $validated['username'] ?? null,
+            'first_name' => $validated['first_name'] ?? null,
+            'last_name' => $validated['last_name'] ?? null,
+            'is_active' => $validated['is_active'] ?? true,
+            'role' => $validated['role'],
+            'password' => Hash::make($validated['password']),
+        ];
+        User::create($data);
+
+        return redirect()->back()->with('success', 'User created successfully');
+    }
+
+    public function update(UpdateUserRequest $request, User $user)
+    {
+        $validated = $request->validated();
+        $data = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'username' => $validated['username'] ?? null,
+            'first_name' => $validated['first_name'] ?? null,
+            'last_name' => $validated['last_name'] ?? null,
+            'is_active' => $validated['is_active'] ?? $user->is_active,
+            'role' => $validated['role'],
+        ];
+        if (!empty($validated['password'])) {
+            $data['password'] = Hash::make($validated['password']);
+        }
+
+        $user->update($data);
+
+        return redirect()->back()->with('success', 'User updated successfully');
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return redirect()->back()->with('success', 'User deleted successfully');
     }
 }
