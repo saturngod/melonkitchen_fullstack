@@ -168,7 +168,7 @@ export default function IngredientIndex({ ingredients, filters }: IngredientInde
                                         {new Date(ingredient.created_at).toLocaleDateString()}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <DropdownMenu>
+                                        <DropdownMenu modal={false}>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost" className="h-8 w-8">
                                                     <span className="sr-only">Open menu</span>

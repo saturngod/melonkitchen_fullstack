@@ -140,7 +140,7 @@ export default function TagIndex({ tags, filters }: TagIndexProps) {
                                         {new Date(tag.created_at).toLocaleDateString()}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <DropdownMenu>
+                                        <DropdownMenu modal={false}>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost" className="h-8 w-8">
                                                     <span className="sr-only">Open menu</span>

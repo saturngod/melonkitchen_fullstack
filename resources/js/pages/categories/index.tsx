@@ -186,7 +186,7 @@ export default function CategoryIndex({ categories, allCategories, filters }: Ca
                         {category.name}
                     </TableCell>
                     <TableCell className="text-right">
-                        <DropdownMenu>
+                        <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
                                 <Button size="icon" variant="ghost" className="h-8 w-8">
                                     <span className="sr-only">Open menu</span>
