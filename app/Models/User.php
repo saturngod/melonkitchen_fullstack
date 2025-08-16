@@ -68,4 +68,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(RecipeRating::class);
     }
+
+    /**
+     * Get the recipe calendar entries for this user.
+     */
+    public function recipeCalendars(): HasMany
+    {
+        return $this->hasMany(RecipeCalendar::class);
+    }
 }

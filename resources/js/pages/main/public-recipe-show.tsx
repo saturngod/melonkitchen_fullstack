@@ -97,29 +97,31 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
         }
     };
 
-    const handleAddToCalendar = () => {
-        if (selectedDate) {
-            // Create a calendar event
-            const eventTitle = `Cook: ${recipe.title}`;
-            const eventDetails = `Recipe: ${recipe.title}\nPrep Time: ${formatTime(recipe.prep_time_minutes)}\nCook Time: ${formatTime(recipe.cook_time_minutes)}\nTotal Time: ${formatTime(totalTime)}`;
+    const handleAddToCalendar = async () => {
+        if (!selectedDate) return;
 
-            // Format date for calendar URL
-            const startDate = new Date(selectedDate);
-            startDate.setHours(12, 0, 0, 0); // Set to noon
-            const endDate = new Date(startDate);
-            endDate.setHours(startDate.getHours() + Math.ceil(totalTime / 60) || 2);
+        // Check authentication
+        if (!auth.user) {
+            router.get('/login');
+            return;
+        }
 
-            const formatDateForCalendar = (date: Date) => {
-                return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-            };
-
-            // Google Calendar URL
-            const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${formatDateForCalendar(startDate)}/${formatDateForCalendar(endDate)}&details=${encodeURIComponent(eventDetails)}&location=${encodeURIComponent('Kitchen')}`;
-
-            window.open(googleCalendarUrl, '_blank');
+        try {
+            // Store recipe in database calendar
+            await router.post('/api/recipe-calendar', {
+                recipe_id: recipe.id,
+                date: selectedDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+            });
 
             // Close the calendar after adding
             setIsCalendarOpen(false);
+            setSelectedDate(null);
+
+            // You can add a success notification here
+            console.log('Recipe added to calendar successfully!');
+        } catch (error) {
+            console.error('Error adding recipe to calendar:', error);
+            // You might want to show a toast notification here
         }
     };
 

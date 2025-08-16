@@ -104,6 +104,14 @@ class Recipe extends Model
     }
 
     /**
+     * Get the calendar entries for this recipe.
+     */
+    public function recipeCalendars(): HasMany
+    {
+        return $this->hasMany(RecipeCalendar::class);
+    }
+
+    /**
      * Scope a query to search recipes by title.
      */
     public function scopeSearch($query, $search)

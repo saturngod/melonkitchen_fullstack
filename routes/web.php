@@ -9,6 +9,7 @@ use App\Http\Controllers\Main\HomeController;
 use App\Http\Controllers\Main\MainRecipeController;
 use App\Http\Controllers\Main\SearchController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\RecipeCalendarController;
 
 Route::get('/', [HomeController::class,'index'])->name('home');
 
@@ -23,6 +24,16 @@ Route::get('/recipes/{recipe}', [MainRecipeController::class, 'show'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-recipes', [\App\Http\Controllers\Main\MyRecipesController::class, 'index'])
         ->name('my-recipes');
+    
+    // Recipe Calendar API routes
+    Route::prefix('api/recipe-calendar')->group(function () {
+        Route::post('/', [\App\Http\Controllers\RecipeCalendarController::class, 'store'])
+            ->name('recipe-calendar.store');
+        Route::delete('/{recipeCalendar}', [\App\Http\Controllers\RecipeCalendarController::class, 'destroy'])
+            ->name('recipe-calendar.destroy');
+        Route::get('/', [\App\Http\Controllers\RecipeCalendarController::class, 'index'])
+            ->name('recipe-calendar.index');
+    });
 });
 
 Route::middleware(['auth', 'verified', 'onlyadmin'])->group(function () {
@@ -53,6 +64,14 @@ Route::middleware(['auth', 'verified', 'onlyadmin'])->group(function () {
         // Recipe toggle public status
         Route::patch('recipes/{recipe}/toggle-public', [\App\Http\Controllers\RecipeController::class, 'togglePublic'])
         ->name('recipes.toggle-public');
+
+        // Recipe Calendar API
+        Route::post('/api/recipe-calendar', [\App\Http\Controllers\RecipeCalendarController::class, 'store'])
+        ->name('recipe-calendar.store');
+        Route::delete('/api/recipe-calendar/{recipeCalendar}', [\App\Http\Controllers\RecipeCalendarController::class, 'destroy'])
+        ->name('recipe-calendar.destroy');
+        Route::get('/api/recipe-calendar', [\App\Http\Controllers\RecipeCalendarController::class, 'index'])
+        ->name('recipe-calendar.index');
     });
     
    
