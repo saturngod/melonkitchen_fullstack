@@ -71,18 +71,20 @@ const Calendar = () => {
 
         switch (currentView) {
             case 'day':
-                newDate = direction === 'next' ? currentDate.add(1, 'day') : currentDate.subtract(1, 'day')
+                newDate = direction === 'next' ? selectedDate.add(1, 'day') : selectedDate.subtract(1, 'day')
+                setSelectedDate(newDate)
                 break
             case 'week':
                 newDate = direction === 'next' ? currentDate.add(1, 'week') : currentDate.subtract(1, 'week')
+                setCurrentDate(newDate)
                 break
             case 'month':
             default:
                 newDate = direction === 'next' ? currentDate.add(1, 'month') : currentDate.subtract(1, 'month')
+                setCurrentDate(newDate)
                 break
         }
 
-        setCurrentDate(newDate)
         // Here you would typically make a request to get new calendar data
     }
 
