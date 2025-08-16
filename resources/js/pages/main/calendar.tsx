@@ -98,28 +98,29 @@ const Calendar = () => {
         let day = calendarStart
 
         while (day.isBefore(calendarEnd) || day.isSame(calendarEnd, 'day')) {
-            const dayData = calendarData.calendarDays.find(d => d.date === day.format('YYYY-MM-DD'))
-            const isCurrentMonth = day.month() === currentDate.month()
-            const isToday = day.isSame(dayjs(), 'day')
-            const isSelected = day.isSame(selectedDate, 'day')
+            const currentDay = day.clone() // Clone the current day to capture it properly
+            const dayData = calendarData.calendarDays.find(d => d.date === currentDay.format('YYYY-MM-DD'))
+            const isCurrentMonth = currentDay.month() === currentDate.month()
+            const isToday = currentDay.isSame(dayjs(), 'day')
+            const isSelected = currentDay.isSame(selectedDate, 'day')
 
             days.push(
                 <div
-                    key={day.format('YYYY-MM-DD')}
+                    key={currentDay.format('YYYY-MM-DD')}
                     className={cn(
                         'min-h-[120px] border border-gray-200 p-2 cursor-pointer hover:bg-gray-50',
                         !isCurrentMonth && 'text-gray-400 bg-gray-50/50',
                         isToday && 'bg-blue-50 border-blue-200',
                         isSelected && 'ring-2 ring-blue-500'
                     )}
-                    onClick={() => setSelectedDate(day)}
+                    onClick={() => setSelectedDate(currentDay)}
                 >
                     <div className="flex items-center justify-between mb-1">
                         <span className={cn(
                             'text-sm font-medium',
                             isToday && 'text-blue-600'
                         )}>
-                            {day.date()}
+                            {currentDay.date()}
                         </span>
                     </div>
                     <div className="space-y-1">
@@ -163,23 +164,24 @@ const Calendar = () => {
 
         for (let i = 0; i < 7; i++) {
             const day = weekStart.add(i, 'day')
-            const dayData = calendarData.calendarDays.find(d => d.date === day.format('YYYY-MM-DD'))
-            const isToday = day.isSame(dayjs(), 'day')
-            const isSelected = day.isSame(selectedDate, 'day')
+            const currentDay = day.clone() // Clone the day to capture it properly
+            const dayData = calendarData.calendarDays.find(d => d.date === currentDay.format('YYYY-MM-DD'))
+            const isToday = currentDay.isSame(dayjs(), 'day')
+            const isSelected = currentDay.isSame(selectedDate, 'day')
 
             days.push(
-                <div key={day.format('YYYY-MM-DD')} className="min-h-[300px] border-r border-gray-200 last:border-r-0">
+                <div key={currentDay.format('YYYY-MM-DD')} className="min-h-[300px] border-r border-gray-200 last:border-r-0">
                     <div className={cn(
                         'p-3 border-b border-gray-200 text-center',
                         isToday && 'bg-blue-50',
                         isSelected && 'bg-blue-100'
                     )}>
-                        <div className="text-sm text-gray-600">{day.format('ddd')}</div>
+                        <div className="text-sm text-gray-600">{currentDay.format('ddd')}</div>
                         <div className={cn(
                             'text-lg font-semibold',
                             isToday && 'text-blue-600'
                         )}>
-                            {day.date()}
+                            {currentDay.date()}
                         </div>
                     </div>
                     <div className="p-2 space-y-1">
@@ -188,7 +190,7 @@ const Calendar = () => {
                                 key={recipe.id}
                                 className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded cursor-pointer hover:bg-blue-200"
                                 title={recipe.title}
-                                onClick={() => setSelectedDate(day)}
+                                onClick={() => setSelectedDate(currentDay)}
                             >
                                 {recipe.title}
                             </div>
@@ -333,18 +335,24 @@ const Calendar = () => {
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                        {calendarData.selectedDateRecipes.length > 0 ? (
-                                            <div className="space-y-2">
-                                                {calendarData.selectedDateRecipes.map((recipe) => (
-                                                    <div key={recipe.id} className="p-2 border rounded hover:bg-gray-50 cursor-pointer">
-                                                        <h4 className="font-medium text-sm">{recipe.title}</h4>
-                                                        <p className="text-xs text-gray-600">By {recipe.author}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p className="text-sm text-gray-500">No recipes scheduled</p>
-                                        )}
+                                        {(() => {
+                                            const selectedDateStr = selectedDate.format('YYYY-MM-DD')
+                                            const dayData = calendarData.calendarDays.find(d => d.date === selectedDateStr)
+                                            const recipes = dayData?.recipes || []
+
+                                            return recipes.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {recipes.map((recipe) => (
+                                                        <div key={recipe.id} className="p-2 border rounded hover:bg-gray-50 cursor-pointer">
+                                                            <h4 className="font-medium text-sm">{recipe.title}</h4>
+                                                            <p className="text-xs text-gray-600">By {recipe.author}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm text-gray-500">No recipes scheduled</p>
+                                            )
+                                        })()}
                                     </CardContent>
                                 </Card>
 
@@ -359,17 +367,41 @@ const Calendar = () => {
                                         </p>
                                     </CardHeader>
                                     <CardContent>
-                                        {calendarData.aggregatedIngredients.length > 0 ? (
-                                            <div className="space-y-1">
-                                                {calendarData.aggregatedIngredients.map((ingredient, index) => (
-                                                    <div key={index} className="text-sm py-1 border-b border-gray-100 last:border-b-0">
-                                                        {ingredient.display}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <p className="text-sm text-gray-500">No ingredients needed</p>
-                                        )}
+                                        {(() => {
+                                            const selectedDateStr = selectedDate.format('YYYY-MM-DD')
+                                            const dayData = calendarData.calendarDays.find(d => d.date === selectedDateStr)
+                                            const recipes = dayData?.recipes || []
+
+                                            // Generate aggregated ingredients from selected date recipes
+                                            const ingredientMap = new Map()
+                                            recipes.forEach(recipe => {
+                                                // For now, we'll show a placeholder since we don't have ingredient data
+                                                // In a real implementation, you'd fetch ingredients for each recipe
+                                                if (recipe.title) {
+                                                    const key = `ingredients-for-${recipe.id}`
+                                                    if (!ingredientMap.has(key)) {
+                                                        ingredientMap.set(key, {
+                                                            display: `Ingredients needed for ${recipe.title}`,
+                                                            recipes: [recipe.title]
+                                                        })
+                                                    }
+                                                }
+                                            })
+
+                                            const ingredients = Array.from(ingredientMap.values())
+
+                                            return ingredients.length > 0 ? (
+                                                <div className="space-y-1">
+                                                    {ingredients.map((ingredient, index) => (
+                                                        <div key={index} className="text-sm py-1 border-b border-gray-100 last:border-b-0">
+                                                            {ingredient.display}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm text-gray-500">No ingredients needed</p>
+                                            )
+                                        })()}
                                     </CardContent>
                                 </Card>
                             </div>
