@@ -1,11 +1,16 @@
-import React from 'react';
-import { Head, Link } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import TopNavigation from '@/components/TopNavigation';
-import { DetailedRecipe, Category } from '@/types';
+import { DetailedRecipe, Category, SharedData } from '@/types';
 import {
     Clock,
     Users,
@@ -14,7 +19,10 @@ import {
     Share2,
     Eye,
     Calendar,
-    User
+    User,
+    CalendarPlus,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 
 interface PublicRecipeShowProps {
@@ -24,12 +32,111 @@ interface PublicRecipeShowProps {
 }
 
 export default function PublicRecipeShow({ recipe, relatedRecipes, categories }: PublicRecipeShowProps) {
+    // Authentication
+    const { auth } = usePage<SharedData>().props;
+
+    // Calendar state
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
     const formatTime = (minutes: number | undefined): string => {
         if (!minutes) return 'N/A';
         if (minutes < 60) return `${minutes} min`;
         const hours = Math.floor(minutes / 60);
         const remainingMinutes = minutes % 60;
         return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+    };
+
+    // Calendar helper functions
+    const formatDate = (date: Date): string => {
+        return date.toLocaleDateString('en-US', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+    };
+
+    const getDaysInMonth = (date: Date): Date[] => {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startDate = new Date(firstDay);
+        startDate.setDate(firstDay.getDate() - firstDay.getDay());
+
+        const days: Date[] = [];
+        for (let i = 0; i < 42; i++) {
+            const day = new Date(startDate);
+            day.setDate(startDate.getDate() + i);
+            days.push(day);
+        }
+        return days;
+    };
+
+    const isToday = (date: Date): boolean => {
+        const today = new Date();
+        return date.toDateString() === today.toDateString();
+    };
+
+    const isSameMonth = (date: Date, month: Date): boolean => {
+        return date.getMonth() === month.getMonth() && date.getFullYear() === month.getFullYear();
+    };
+
+    const isPastDate = (date: Date): boolean => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return date < today;
+    };
+
+    const handleDateSelect = (date: Date) => {
+        if (!isPastDate(date)) {
+            setSelectedDate(date);
+            setIsCalendarOpen(false);
+        }
+    };
+
+    const handleAddToCalendar = () => {
+        if (selectedDate) {
+            // Create a calendar event
+            const eventTitle = `Cook: ${recipe.title}`;
+            const eventDetails = `Recipe: ${recipe.title}\nPrep Time: ${formatTime(recipe.prep_time_minutes)}\nCook Time: ${formatTime(recipe.cook_time_minutes)}\nTotal Time: ${formatTime(totalTime)}`;
+
+            // Format date for calendar URL
+            const startDate = new Date(selectedDate);
+            startDate.setHours(12, 0, 0, 0); // Set to noon
+            const endDate = new Date(startDate);
+            endDate.setHours(startDate.getHours() + Math.ceil(totalTime / 60) || 2);
+
+            const formatDateForCalendar = (date: Date) => {
+                return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            };
+
+            // Google Calendar URL
+            const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${formatDateForCalendar(startDate)}/${formatDateForCalendar(endDate)}&details=${encodeURIComponent(eventDetails)}&location=${encodeURIComponent('Kitchen')}`;
+
+            window.open(googleCalendarUrl, '_blank');
+        }
+    };
+
+    // Authentication check handlers
+    const handleSaveRecipe = () => {
+        if (!auth.user) {
+            router.get('/login');
+            return;
+        }
+        // TODO: Implement save functionality for authenticated users
+        console.log('Save recipe for user:', auth.user.name);
+    };
+
+    const handleCalendarClick = () => {
+        if (!auth.user) {
+            router.get('/login');
+            return;
+        }
+        setIsCalendarOpen(true);
     };
 
     const totalTime = (recipe.prep_time_minutes || 0) + (recipe.cook_time_minutes || 0);
@@ -48,10 +155,102 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
                         {/* Action Buttons Row */}
                         <div className="flex justify-end items-center mb-6">
                             <div className="flex items-center space-x-4">
-                                <Button variant="ghost" size="sm">
+                                <Button variant="ghost" size="sm" onClick={handleSaveRecipe}>
                                     <Heart className="w-4 h-4 mr-2" />
                                     Save
                                 </Button>
+
+                                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="ghost" size="sm" onClick={handleCalendarClick}>
+                                            <CalendarPlus className="w-4 h-4 mr-2" />
+                                            Add To Calendar
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="end">
+                                        <div className="p-4">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        const newMonth = new Date(currentMonth);
+                                                        newMonth.setMonth(currentMonth.getMonth() - 1);
+                                                        setCurrentMonth(newMonth);
+                                                    }}
+                                                >
+                                                    <ChevronLeft className="w-4 h-4" />
+                                                </Button>
+                                                <h3 className="text-sm font-medium">
+                                                    {currentMonth.toLocaleDateString('en-US', {
+                                                        month: 'long',
+                                                        year: 'numeric'
+                                                    })}
+                                                </h3>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        const newMonth = new Date(currentMonth);
+                                                        newMonth.setMonth(currentMonth.getMonth() + 1);
+                                                        setCurrentMonth(newMonth);
+                                                    }}
+                                                >
+                                                    <ChevronRight className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+
+                                            <div className="grid grid-cols-7 gap-1 mb-2">
+                                                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day) => (
+                                                    <div key={day} className="text-center text-xs font-medium text-gray-500 p-2">
+                                                        {day}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="grid grid-cols-7 gap-1">
+                                                {getDaysInMonth(currentMonth).map((date, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => handleDateSelect(date)}
+                                                        disabled={isPastDate(date)}
+                                                        className={`
+                                                            p-2 text-xs rounded-md transition-colors
+                                                            ${!isSameMonth(date, currentMonth)
+                                                                ? 'text-gray-300'
+                                                                : isPastDate(date)
+                                                                    ? 'text-gray-300 cursor-not-allowed'
+                                                                    : 'text-gray-900 hover:bg-gray-100'
+                                                            }
+                                                            ${isToday(date) ? 'bg-blue-100 text-blue-900' : ''}
+                                                            ${selectedDate && date.toDateString() === selectedDate.toDateString()
+                                                                ? 'bg-primary text-primary-foreground'
+                                                                : ''
+                                                            }
+                                                        `}
+                                                    >
+                                                        {date.getDate()}
+                                                    </button>
+                                                ))}
+                                            </div>
+
+                                            {selectedDate && (
+                                                <div className="mt-4 pt-4 border-t">
+                                                    <p className="text-sm text-gray-600 mb-3">
+                                                        Selected: {formatDate(selectedDate)}
+                                                    </p>
+                                                    <Button
+                                                        onClick={handleAddToCalendar}
+                                                        size="sm"
+                                                        className="w-full"
+                                                    >
+                                                        Add to Google Calendar
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                         </div>
 
