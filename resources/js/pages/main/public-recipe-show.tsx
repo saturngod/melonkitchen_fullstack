@@ -94,7 +94,6 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
     const handleDateSelect = (date: Date) => {
         if (!isPastDate(date)) {
             setSelectedDate(date);
-            setIsCalendarOpen(false);
         }
     };
 
@@ -118,6 +117,9 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
             const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${formatDateForCalendar(startDate)}/${formatDateForCalendar(endDate)}&details=${encodeURIComponent(eventDetails)}&location=${encodeURIComponent('Kitchen')}`;
 
             window.open(googleCalendarUrl, '_blank');
+
+            // Close the calendar after adding
+            setIsCalendarOpen(false);
         }
     };
 
@@ -244,7 +246,7 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
                                                         size="sm"
                                                         className="w-full"
                                                     >
-                                                        Add to Google Calendar
+                                                        Add
                                                     </Button>
                                                 </div>
                                             )}
