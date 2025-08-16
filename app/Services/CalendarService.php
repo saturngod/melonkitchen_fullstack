@@ -19,7 +19,9 @@ class CalendarService implements CalendarServiceInterface
         
         $calendarDays = $this->generateCalendarDays($currentDate, $filters);
         $selectedDateRecipes = $this->getRecipesForDate($filters->date, $filters->userId);
-        $aggregatedIngredients = $this->getAggregatedIngredients($filters->date, $filters->userId);
+        
+        // Get aggregated ingredients for the entire month instead of just one date
+        $aggregatedIngredients = $this->getMonthlyAggregatedIngredients($currentDate, $filters->userId);
 
         return new CalendarDataDTO(
             calendarDays: $calendarDays,
@@ -155,7 +157,7 @@ class CalendarService implements CalendarServiceInterface
                 return $recipe->recipeIngredients;
             })
             ->groupBy('ingredient.name')
-            ->map(function ($ingredientGroup, $ingredientName) {
+            ->map(function ($ingredientGroup, $ingredientName) use ($date) {
                 $totalQuantity = $ingredientGroup->sum('quantity');
                 $unit = $ingredientGroup->first()->unit?->name ?? '';
                 
@@ -164,10 +166,54 @@ class CalendarService implements CalendarServiceInterface
                     'quantity' => $totalQuantity,
                     'unit' => $unit,
                     'display' => $ingredientName . ' ' . $totalQuantity . ($unit ? ' ' . $unit : ''),
+                    'date' => $date, // Add the date field so frontend can filter
                 ];
             })
             ->values();
 
         return $ingredients;
+    }
+
+    private function getMonthlyAggregatedIngredients(Carbon $currentDate, ?string $userId): Collection
+    {
+        if (!$userId) {
+            return collect();
+        }
+
+        // Get all recipe calendar entries for the current month
+        $startOfMonth = $currentDate->copy()->startOfMonth();
+        $endOfMonth = $currentDate->copy()->endOfMonth();
+
+        $recipeCalendars = RecipeCalendar::with(['recipe.recipeIngredients.ingredient', 'recipe.recipeIngredients.unit'])
+            ->where('user_id', $userId)
+            ->whereBetween('date', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+            ->get();
+
+        $allIngredients = collect();
+
+        // Group by date and aggregate ingredients per date
+        $recipeCalendars->groupBy('date')->each(function ($dateRecipes, $date) use ($allIngredients) {
+            $ingredientsForDate = $dateRecipes
+                ->flatMap(function ($recipeCalendar) {
+                    return $recipeCalendar->recipe->recipeIngredients;
+                })
+                ->groupBy('ingredient.name')
+                ->map(function ($ingredientGroup, $ingredientName) use ($date) {
+                    $totalQuantity = $ingredientGroup->sum('quantity');
+                    $unit = $ingredientGroup->first()->unit?->name ?? '';
+                    
+                    return [
+                        'name' => $ingredientName,
+                        'quantity' => $totalQuantity,
+                        'unit' => $unit,
+                        'display' => $ingredientName . ' ' . $totalQuantity . ($unit ? ' ' . $unit : ''),
+                        'date' => $date,
+                    ];
+                });
+
+            $allIngredients->push(...$ingredientsForDate->values());
+        });
+
+        return $allIngredients;
     }
 }

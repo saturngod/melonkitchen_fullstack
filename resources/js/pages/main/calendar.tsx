@@ -39,6 +39,7 @@ interface CalendarData {
         quantity: number
         unit: string
         display: string
+        date: string
     }>
     selectedDateRecipes: Array<{
         id: string
@@ -372,34 +373,72 @@ const Calendar = () => {
                                             const dayData = calendarData.calendarDays.find(d => d.date === selectedDateStr)
                                             const recipes = dayData?.recipes || []
 
-                                            // Generate aggregated ingredients from selected date recipes
-                                            const ingredientMap = new Map()
-                                            recipes.forEach(recipe => {
-                                                // For now, we'll show a placeholder since we don't have ingredient data
-                                                // In a real implementation, you'd fetch ingredients for each recipe
-                                                if (recipe.title) {
-                                                    const key = `ingredients-for-${recipe.id}`
-                                                    if (!ingredientMap.has(key)) {
-                                                        ingredientMap.set(key, {
-                                                            display: `Ingredients needed for ${recipe.title}`,
-                                                            recipes: [recipe.title]
-                                                        })
-                                                    }
+                                            // DEBUG LOGGING
+                                            console.log('🧪 Shopping List Debug:')
+                                            console.log('Selected Date String:', selectedDateStr)
+                                            console.log('Calendar Data:', calendarData)
+                                            console.log('Aggregated Ingredients:', calendarData.aggregatedIngredients)
+                                            console.log('Day Data:', dayData)
+                                            console.log('Recipes for day:', recipes)
+
+                                            // Get aggregated ingredients that match the selected date
+                                            const selectedDateIngredients = calendarData.aggregatedIngredients.filter(
+                                                ingredient => {
+                                                    // Handle both 'YYYY-MM-DD' and 'YYYY-MM-DD HH:mm:ss' formats
+                                                    const ingredientDate = ingredient.date.split(' ')[0]; // Get just the date part
+                                                    return ingredientDate === selectedDateStr;
+                                                }
+                                            )
+                                            
+                                            console.log('Filtered ingredients for date:', selectedDateIngredients)
+
+                                            // Aggregate ingredients by name and unit (combine quantities)
+                                            const aggregatedMap = new Map<string, { name: string, quantity: number, unit: string }>()
+                                            
+                                            selectedDateIngredients.forEach(ingredient => {
+                                                const key = `${ingredient.name}-${ingredient.unit}` // Group by name + unit
+                                                
+                                                if (aggregatedMap.has(key)) {
+                                                    const existing = aggregatedMap.get(key)!
+                                                    aggregatedMap.set(key, {
+                                                        ...existing,
+                                                        quantity: existing.quantity + ingredient.quantity
+                                                    })
+                                                } else {
+                                                    aggregatedMap.set(key, {
+                                                        name: ingredient.name,
+                                                        quantity: ingredient.quantity,
+                                                        unit: ingredient.unit
+                                                    })
                                                 }
                                             })
 
-                                            const ingredients = Array.from(ingredientMap.values())
+                                            const aggregatedIngredients = Array.from(aggregatedMap.values())
+                                            
+                                            // DEBUG LOGGING FOR AGGREGATION
+                                            console.log('Aggregated Map:', aggregatedMap)
+                                            console.log('Final aggregated ingredients:', aggregatedIngredients)
 
-                                            return ingredients.length > 0 ? (
-                                                <div className="space-y-1">
-                                                    {ingredients.map((ingredient, index) => (
-                                                        <div key={index} className="text-sm py-1 border-b border-gray-100 last:border-b-0">
-                                                            {ingredient.display}
+                                            return aggregatedIngredients.length > 0 ? (
+                                                <div className="space-y-2">
+                                                    {aggregatedIngredients.map((ingredient, index) => (
+                                                        <div key={index} className="flex justify-between items-center text-sm py-2 border-b border-gray-100 last:border-b-0">
+                                                            <span className="font-medium">{ingredient.name}</span>
+                                                            <span className="text-gray-600">
+                                                                {ingredient.quantity} {ingredient.unit}
+                                                            </span>
                                                         </div>
                                                     ))}
+                                                    <div className="pt-2 mt-2 border-t border-gray-200">
+                                                        <p className="text-xs text-gray-500">
+                                                            Total: {aggregatedIngredients.length} ingredient{aggregatedIngredients.length !== 1 ? 's' : ''}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             ) : (
-                                                <p className="text-sm text-gray-500">No ingredients needed</p>
+                                                <p className="text-sm text-gray-500">
+                                                    {recipes.length > 0 ? 'No ingredients data available' : 'No recipes scheduled'}
+                                                </p>
                                             )
                                         })()}
                                     </CardContent>
