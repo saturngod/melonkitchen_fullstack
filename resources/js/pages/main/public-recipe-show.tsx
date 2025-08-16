@@ -24,6 +24,7 @@ import {
     ChevronLeft,
     ChevronRight
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface PublicRecipeShowProps {
     recipe: DetailedRecipe;
@@ -32,8 +33,8 @@ interface PublicRecipeShowProps {
 }
 
 export default function PublicRecipeShow({ recipe, relatedRecipes, categories }: PublicRecipeShowProps) {
-    // Authentication
-    const { auth } = usePage<SharedData>().props;
+    // Authentication and CSRF
+    const { auth, csrf } = usePage<SharedData>().props;
 
     // Calendar state
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -107,21 +108,42 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
         }
 
         try {
-            // Store recipe in database calendar
-            await router.post('/api/recipe-calendar', {
-                recipe_id: recipe.id,
-                date: selectedDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+            // Store recipe in database calendar using fetch API with CSRF
+            const response = await fetch('/api/recipe-calendar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf as string,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    recipe_id: recipe.id,
+                    date: selectedDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
+                }),
             });
 
-            // Close the calendar after adding
-            setIsCalendarOpen(false);
-            setSelectedDate(null);
+            const result = await response.json();
 
-            // You can add a success notification here
-            console.log('Recipe added to calendar successfully!');
+            if (response.ok && result.success) {
+                // Show success toast
+                toast.success(result.message, {
+                    description: `Recipe "${result.data.recipe_title}" added to ${result.data.date}`,
+                });
+
+                // Close the calendar after adding
+                setIsCalendarOpen(false);
+                setSelectedDate(null);
+            } else {
+                // Show error toast
+                toast.error('Failed to add recipe to calendar', {
+                    description: result.message || 'Please try again later',
+                });
+            }
         } catch (error) {
             console.error('Error adding recipe to calendar:', error);
-            // You might want to show a toast notification here
+            toast.error('Network error', {
+                description: 'Failed to connect to server. Please try again.',
+            });
         }
     };
 
