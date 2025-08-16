@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Auth\Concerns\HasRoleBasedRedirect;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -15,6 +16,7 @@ use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
+    use HasRoleBasedRedirect;
     /**
      * Show the registration page.
      */
@@ -38,6 +40,7 @@ class RegisteredUserController extends Controller
 
         $user = User::create([
             'name' => $request->name,
+            'username' => $request->email,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
@@ -46,6 +49,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return $this->roleBasedRedirect($user);
     }
 }

@@ -7,15 +7,25 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\Main\HomeController;
 use App\Http\Controllers\Main\MainRecipeController;
+use App\Http\Controllers\Main\SearchController;
 use App\Http\Controllers\RecipeController;
 
 Route::get('/', [HomeController::class,'index'])->name('home');
+
+// Search route
+Route::get('/search', [SearchController::class, 'index'])->name('search');
 
 // Public recipe view route
 Route::get('/recipes/{recipe}', [MainRecipeController::class, 'show'])
     ->name('recipes.public.show');
 
+// My recipes route (requires authentication)
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/my-recipes', [\App\Http\Controllers\Main\MyRecipesController::class, 'index'])
+        ->name('my-recipes');
+});
+
+Route::middleware(['auth', 'verified', 'onlyadmin'])->group(function () {
 
     Route::prefix('dashboard')->group(function () {
         

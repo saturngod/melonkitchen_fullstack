@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -9,9 +9,11 @@ import {
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Calendar, Search, LogIn } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Calendar, Search, LogIn, User } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
-import { Category } from '@/types';
+import { MainUserMenuContent } from '@/components/main-user-menu-content';
+import { Category, SharedData } from '@/types';
 
 interface TopNavigationProps {
     categories: Category[];
@@ -20,6 +22,7 @@ interface TopNavigationProps {
 export default function TopNavigation({ categories }: TopNavigationProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeCatSlug, setActiveCatSlug] = useState<string | null>(null);
+    const { auth } = usePage<SharedData>().props;
 
     // Ensure we always have a stable featured category list
     const mainCategories = useMemo(() => categories?.slice(0, 8) ?? [], [categories]);
@@ -31,8 +34,7 @@ export default function TopNavigation({ categories }: TopNavigationProps) {
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            // For now, just console log - we'll implement search later
-            console.log('Searching for:', searchQuery);
+            router.get('/search', { q: searchQuery.trim() });
         }
     };
 
@@ -168,20 +170,37 @@ export default function TopNavigation({ categories }: TopNavigationProps) {
                             variant="ghost"
                             size="icon"
                             className="sm:hidden"
-                            onClick={() => console.log('Mobile search modal')}
+                            onClick={() => router.get('/search')}
                         >
                             <Search className="w-4 h-4" />
                         </Button>
 
-                        {/* Login Button */}
-                        <Button
-                            variant="outline"
-                            onClick={handleLogin}
-                            className="flex items-center space-x-2"
-                        >
-                            <LogIn className="w-4 h-4" />
-                            <span className="hidden sm:inline">Login</span>
-                        </Button>
+                        {/* Authentication - Show user info or login button */}
+                        {auth.user ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        className="flex items-center space-x-2 h-10 px-3"
+                                    >
+                                        <User className="w-4 h-4" />
+                                        <span className="hidden sm:inline font-medium">{auth.user.name}</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56" align="end">
+                                    <MainUserMenuContent user={auth.user} />
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        ) : (
+                            <Button
+                                variant="outline"
+                                onClick={handleLogin}
+                                className="flex items-center space-x-2"
+                            >
+                                <LogIn className="w-4 h-4" />
+                                <span className="hidden sm:inline">Login</span>
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>

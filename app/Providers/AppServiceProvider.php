@@ -7,11 +7,15 @@ use App\Repositories\Contracts\RecipeRepositoryInterface;
 use App\Repositories\Eloquent\EloquentCategoryRepository;
 use App\Repositories\Eloquent\EloquentRecipeRepository;
 use App\Services\Contracts\HomePageServiceInterface;
+use App\Services\Contracts\MyRecipesServiceInterface;
 use App\Services\Contracts\PublicRecipeServiceInterface;
 use App\Services\Contracts\RecipeDetailServiceInterface;
+use App\Services\Contracts\SearchServiceInterface;
 use App\Services\HomePageService;
+use App\Services\MyRecipesService;
 use App\Services\PublicRecipeService;
 use App\Services\RecipeDetailService;
+use App\Services\SearchService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -46,6 +50,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             PublicRecipeServiceInterface::class,
             PublicRecipeService::class
+        );
+
+        $this->app->bind(
+            SearchServiceInterface::class,
+            SearchService::class
+        );
+
+        $this->app->bind(
+            MyRecipesServiceInterface::class,
+            MyRecipesService::class
         );
     }
 

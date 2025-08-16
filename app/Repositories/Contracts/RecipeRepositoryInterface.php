@@ -35,4 +35,24 @@ interface RecipeRepositoryInterface
      * Check if recipe is public.
      */
     public function isPublic(Recipe $recipe): bool;
+
+    /**
+     * Search recipes based on filters.
+     */
+    public function searchRecipes(\App\DataTransferObjects\SearchFiltersDTO $filters): LengthAwarePaginator;
+
+    /**
+     * Get user's recipes query builder.
+     */
+    public function getUserRecipesQuery(\App\Models\User $user): \Illuminate\Database\Eloquent\Builder;
+
+    /**
+     * Get total count of user's recipes.
+     */
+    public function getUserRecipesCount(\App\Models\User $user): int;
+
+    /**
+     * Get count of user's public recipes.
+     */
+    public function getUserPublicRecipesCount(\App\Models\User $user): int;
 }

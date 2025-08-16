@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->alias([
+            'onlyadmin' => \App\Http\Middleware\OnlyAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
