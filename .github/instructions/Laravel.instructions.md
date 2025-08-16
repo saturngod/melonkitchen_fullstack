@@ -1,5 +1,5 @@
 ---
-applyTo: '*.php'
+applyTo: '**/*.php'
 ---
 
 # Laravel 12.x Development Instructions for GitHub Copilot
@@ -12,11 +12,11 @@ These instructions guide GitHub Copilot to generate Laravel 12.x code following 
 
 ### SOLID Principles
 
-- **Single Responsibility**: Each class should have one reason to change
-- **Open/Closed**: Open for extension, closed for modification
-- **Liskov Substitution**: Derived classes must be substitutable for base classes
-- **Interface Segregation**: Clients shouldn't depend on interfaces they don't use
-- **Dependency Inversion**: Depend on abstractions, not concretions
+- Single Responsibility: Each class should have one reason to change
+- Open/Closed: Open for extension, closed for modification
+- Liskov Substitution: Derived classes must be substitutable for base classes
+- Interface Segregation: Clients shouldn't depend on interfaces they don't use
+- Dependency Inversion: Depend on abstractions, not concretions
 
 ### Clean Code Standards
 
@@ -70,16 +70,15 @@ use Illuminate\Http\Request;
 
 class SomeService
 {
-public function \_\_construct(
-private readonly CategoryController $categoryController
-) {}
+    public function __construct(
+        private readonly CategoryController $categoryController
+    ) {}
 
     public function processCategory(): void
     {
         // Use CategoryController here without full namespace
         $result = $this->categoryController->someMethod();
     }
-
 }
 ```
 
@@ -163,7 +162,7 @@ class CreateUserCommand
 {
     public function __construct(
         public readonly string $name,
-        public readonly string $email,
+               public readonly string $email,
         public readonly string $password
     ) {}
 }
@@ -269,9 +268,14 @@ class SendWelcomeEmail
         Mail::to($event->user->email)->send(new WelcomeEmail($event->user));
     }
 }
-Database Best Practices
-Eloquent Models
-phpclass User extends Authenticatable
+```
+
+## Database Best Practices
+
+### Eloquent Models
+
+```php
+class User extends Authenticatable
 {
     protected $fillable = ['name', 'email', 'password'];
 
@@ -500,3 +504,7 @@ app/
 - Use Laravel's localization features for multi-language support
 
 Remember: Code should be readable, maintainable, and testable. When in doubt, favor simplicity and clarity over cleverness.
+
+## Other
+
+- no need to run `php artisan serve` and `npm run dev` or `npm run build`

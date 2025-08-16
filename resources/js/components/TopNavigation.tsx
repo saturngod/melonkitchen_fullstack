@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
 import {
     NavigationMenu,
@@ -19,6 +19,14 @@ interface TopNavigationProps {
 
 export default function TopNavigation({ categories }: TopNavigationProps) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [activeCatSlug, setActiveCatSlug] = useState<string | null>(null);
+
+    // Ensure we always have a stable featured category list
+    const mainCategories = useMemo(() => categories?.slice(0, 8) ?? [], [categories]);
+    const activeCategory = useMemo(
+        () => mainCategories.find((c) => c.slug === activeCatSlug) ?? mainCategories[0],
+        [activeCatSlug, mainCategories]
+    );
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -63,10 +71,12 @@ export default function TopNavigation({ categories }: TopNavigationProps) {
                                                                 Find recipes by category type
                                                             </p>
                                                         </div>
-                                                        {categories.slice(0, 6).map((category) => (
+                                                        {mainCategories.map((category) => (
                                                             <div key={category.id} className="space-y-1">
                                                                 <Link
-                                                                    href={`/?category=${category.id}`}
+                                                                    href={`/?category=${encodeURIComponent(category.slug)}`}
+                                                                    onMouseEnter={() => setActiveCatSlug(category.slug)}
+                                                                    onFocus={() => setActiveCatSlug(category.slug)}
                                                                     className="block select-none rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                                                                 >
                                                                     <div className="text-sm font-medium leading-none mb-1">
@@ -81,7 +91,7 @@ export default function TopNavigation({ categories }: TopNavigationProps) {
                                                                 </Link>
                                                             </div>
                                                         ))}
-                                                        {categories.length > 6 && (
+                                                        {categories.length > mainCategories.length && (
                                                             <div className="text-center pt-2">
                                                                 <Link
                                                                     href="/categories"
@@ -93,21 +103,21 @@ export default function TopNavigation({ categories }: TopNavigationProps) {
                                                         )}
                                                     </div>
 
-                                                    {/* Right Column - Subcategories of Featured Category */}
-                                                    {categories.length > 0 && categories[0].children && categories[0].children.length > 0 && (
+                                                    {/* Right Column - Dynamic Subcategories of hovered/active Category */}
+                                                    {activeCategory?.children && activeCategory.children.length > 0 && (
                                                         <div className="space-y-1">
                                                             <div className="mb-3">
                                                                 <h3 className="text-sm font-medium text-muted-foreground">
-                                                                    {categories[0].name} Subcategories
+                                                                    {activeCategory.name} Subcategories
                                                                 </h3>
                                                                 <p className="text-xs text-muted-foreground">
                                                                     Explore specific types
                                                                 </p>
                                                             </div>
-                                                            {categories[0].children.slice(0, 8).map((subcategory) => (
+                                                            {activeCategory.children.slice(0, 12).map((subcategory) => (
                                                                 <Link
                                                                     key={subcategory.id}
-                                                                    href={`/?category=${subcategory.id}`}
+                                                                    href={`/?category=${encodeURIComponent(subcategory.slug)}`}
                                                                     className="block select-none rounded-md p-2 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                                                                 >
                                                                     <div className="text-sm leading-none">

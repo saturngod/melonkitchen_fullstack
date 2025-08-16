@@ -47,6 +47,8 @@ export interface User {
 export interface Category {
     id: string;
     name: string;
+    slug: string;
+    name_en?: string;
     parent_id?: string;
     parent?: Category;
     children?: Category[];

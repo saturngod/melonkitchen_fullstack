@@ -6,6 +6,9 @@ use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Category;
+use App\Models\Tag;
+use App\Models\Ingredient;
 
 class RecipeController extends Controller
 {
@@ -70,11 +73,11 @@ class RecipeController extends Controller
     public function create(): Response
     {
         return Inertia::render('recipes/create', [
-            'categories' => \App\Models\Category::with('parent')->get(),
-            'tags' => \App\Models\Tag::where('is_public', true)
+            'categories' => Category::with('parent')->get(),
+            'tags' => Tag::where('is_public', true)
                 ->orWhere('created_user_id', auth()->id())
                 ->get(),
-            'ingredients' => \App\Models\Ingredient::with('units')->get(),
+            'ingredients' => Ingredient::with('units')->get(),
             'units' => \App\Models\Unit::all(),
         ]);
     }
@@ -341,12 +344,12 @@ class RecipeController extends Controller
         }
 
         // Get categories for navigation dropdown
-        $categories = \App\Models\Category::whereNull('parent_id')
+        $categories = Category::whereNull('parent_id')
             ->with('children')
             ->orderBy('name')
             ->get();
 
-        return Inertia::render('Main/RecipeShow', [
+        return Inertia::render('main/recipe-show', [
             'recipe' => $recipe,
             'categories' => $categories,
         ]);
