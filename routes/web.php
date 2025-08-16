@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\IngredientController;
+use App\Http\Controllers\Main\CalendarController;
 use App\Http\Controllers\Main\HomeController;
 use App\Http\Controllers\Main\MainRecipeController;
 use App\Http\Controllers\Main\SearchController;
@@ -24,6 +25,10 @@ Route::get('/recipes/{recipe}', [MainRecipeController::class, 'show'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-recipes', [\App\Http\Controllers\Main\MyRecipesController::class, 'index'])
         ->name('my-recipes');
+    
+    // Calendar route
+    Route::get('/calendar', [CalendarController::class, 'index'])
+        ->name('calendar');
     
     // Recipe Calendar API routes
     Route::prefix('api/recipe-calendar')->group(function () {

@@ -6,11 +6,13 @@ use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\RecipeRepositoryInterface;
 use App\Repositories\Eloquent\EloquentCategoryRepository;
 use App\Repositories\Eloquent\EloquentRecipeRepository;
+use App\Services\Contracts\CalendarServiceInterface;
 use App\Services\Contracts\HomePageServiceInterface;
 use App\Services\Contracts\MyRecipesServiceInterface;
 use App\Services\Contracts\PublicRecipeServiceInterface;
 use App\Services\Contracts\RecipeDetailServiceInterface;
 use App\Services\Contracts\SearchServiceInterface;
+use App\Services\CalendarService;
 use App\Services\HomePageService;
 use App\Services\MyRecipesService;
 use App\Services\PublicRecipeService;
@@ -60,6 +62,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             MyRecipesServiceInterface::class,
             MyRecipesService::class
+        );
+
+        $this->app->bind(
+            CalendarServiceInterface::class,
+            CalendarService::class
         );
     }
 
