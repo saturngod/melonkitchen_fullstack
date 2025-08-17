@@ -389,15 +389,15 @@ const Calendar = () => {
                                                     return ingredientDate === selectedDateStr;
                                                 }
                                             )
-                                            
+
                                             console.log('Filtered ingredients for date:', selectedDateIngredients)
 
                                             // Aggregate ingredients by name and unit (combine quantities)
                                             const aggregatedMap = new Map<string, { name: string, quantity: number, unit: string }>()
-                                            
+
                                             selectedDateIngredients.forEach(ingredient => {
                                                 const key = `${ingredient.name}-${ingredient.unit}` // Group by name + unit
-                                                
+
                                                 if (aggregatedMap.has(key)) {
                                                     const existing = aggregatedMap.get(key)!
                                                     aggregatedMap.set(key, {
@@ -414,7 +414,7 @@ const Calendar = () => {
                                             })
 
                                             const aggregatedIngredients = Array.from(aggregatedMap.values())
-                                            
+
                                             // DEBUG LOGGING FOR AGGREGATION
                                             console.log('Aggregated Map:', aggregatedMap)
                                             console.log('Final aggregated ingredients:', aggregatedIngredients)

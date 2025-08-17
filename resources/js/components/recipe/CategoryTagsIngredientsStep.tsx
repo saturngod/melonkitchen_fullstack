@@ -201,7 +201,22 @@ export default function CategoryTagsIngredientsStep({
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="md:col-span-2 lg:col-span-2">
-                                <Label htmlFor="new-ingredient" className="text-sm">Ingredient</Label>
+                                <div className="flex items-center justify-between mb-2">
+                                    <Label htmlFor="new-ingredient" className="text-sm">Ingredient</Label>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 px-2 text-xs"
+                                        onClick={() => {
+                                            // TODO: Open modal to create new ingredient
+                                            console.log('Add new ingredient clicked');
+                                        }}
+                                    >
+                                        <Plus className="h-3 w-3 mr-1" />
+                                        Add Ingredient
+                                    </Button>
+                                </div>
                                 <Combobox
                                     options={ingredientOptions}
                                     value={newIngredient.ingredient_id}
