@@ -7,6 +7,25 @@ import { ChevronRight } from 'lucide-react';
 export function NavMain({ groups = [] }: { groups: NavGroup[] }) {
     const page = usePage();
 
+    // Helper function to determine if a menu item should be active
+    const isMenuItemActive = (itemHref: string): boolean => {
+        const currentUrl = page.url;
+
+        // Exact match for root paths
+        if (itemHref === '/' || itemHref === '/dashboard') {
+            return currentUrl === itemHref;
+        }
+
+        // For other paths, check if current URL starts with the item href
+        // but ensure it's followed by a slash or is at the end
+        if (currentUrl.startsWith(itemHref)) {
+            const nextChar = currentUrl[itemHref.length];
+            return nextChar === undefined || nextChar === '/' || nextChar === '?';
+        }
+
+        return false;
+    };
+
     return (
         <>
             {groups.map((group) => (
@@ -28,7 +47,7 @@ export function NavMain({ groups = [] }: { groups: NavGroup[] }) {
                                             <SidebarMenuSub>
                                                 {item.items?.map((subItem) => (
                                                     <SidebarMenuSubItem key={subItem.title}>
-                                                        <SidebarMenuSubButton key={subItem.title} asChild>
+                                                        <SidebarMenuSubButton key={subItem.title} asChild isActive={isMenuItemActive(subItem.href)}>
                                                             <Link href={subItem.href}>
                                                                 <span>{subItem.title}</span>
                                                             </Link>
@@ -41,7 +60,7 @@ export function NavMain({ groups = [] }: { groups: NavGroup[] }) {
                                 </Collapsible>
                             ) : (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild isActive={page.url.startsWith(item.href)} tooltip={{ children: item.title }}>
+                                    <SidebarMenuButton asChild isActive={isMenuItemActive(item.href)} tooltip={{ children: item.title }}>
                                         <Link href={item.href} prefetch>
                                             {item.icon && <item.icon />}
                                             <span>{item.title}</span>
