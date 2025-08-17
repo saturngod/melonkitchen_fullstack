@@ -43,7 +43,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('api/recipe-calendar')->group(function () {
         Route::post('/', [\App\Http\Controllers\RecipeCalendarController::class, 'store'])
             ->name('recipe-calendar.store');
-        Route::delete('/{recipeCalendar}', [\App\Http\Controllers\RecipeCalendarController::class, 'destroy'])
+        Route::delete('/', [\App\Http\Controllers\RecipeCalendarController::class, 'destroy'])
             ->name('recipe-calendar.destroy');
         Route::get('/', [\App\Http\Controllers\RecipeCalendarController::class, 'index'])
             ->name('recipe-calendar.index');
@@ -84,7 +84,7 @@ Route::middleware(['auth', 'verified', 'onlyadmin'])->group(function () {
         // Recipe Calendar API
         Route::post('/api/recipe-calendar', [\App\Http\Controllers\RecipeCalendarController::class, 'store'])
         ->name('recipe-calendar.store');
-        Route::delete('/api/recipe-calendar/{recipeCalendar}', [\App\Http\Controllers\RecipeCalendarController::class, 'destroy'])
+        Route::delete('/api/recipe-calendar', [\App\Http\Controllers\RecipeCalendarController::class, 'destroy'])
         ->name('recipe-calendar.destroy');
         Route::get('/api/recipe-calendar', [\App\Http\Controllers\RecipeCalendarController::class, 'index'])
         ->name('recipe-calendar.index');

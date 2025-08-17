@@ -84,11 +84,6 @@ class RecipeCalendarController extends Controller
     public function destroy(Request $request): JsonResponse
     {
         try {
-            $validated = $request->validate([
-                'recipe_id' => 'required|exists:recipes,id',
-                'date' => 'required|date',
-            ]);
-
             $user = Auth::user();
             if (!$user) {
                 return response()->json([
@@ -97,22 +92,39 @@ class RecipeCalendarController extends Controller
                 ], 401);
             }
 
-            $deleted = RecipeCalendar::where('user_id', $user->id)
+            // Validate request data
+            $validated = $request->validate([
+                'recipe_id' => 'required|exists:recipes,id',
+                'date' => 'required|date',
+            ]);
+
+            // Find and delete the calendar entry
+            $recipeCalendar = RecipeCalendar::where('user_id', $user->id)
                 ->where('recipe_id', $validated['recipe_id'])
                 ->where('date', Carbon::parse($validated['date'])->format('Y-m-d'))
-                ->delete();
+                ->first();
 
-            if ($deleted) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Recipe removed from calendar successfully'
-                ], 200);
-            } else {
+            if (!$recipeCalendar) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Calendar entry not found'
                 ], 404);
             }
+
+            $recipe = $recipeCalendar->recipe;
+            $recipeTitle = $recipe->title;
+            $date = $recipeCalendar->date->format('Y-m-d');
+            
+            $recipeCalendar->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Recipe removed from calendar successfully',
+                'data' => [
+                    'recipe_title' => $recipeTitle,
+                    'date' => $date,
+                ]
+            ], 200);
 
         } catch (ValidationException $e) {
             return response()->json([

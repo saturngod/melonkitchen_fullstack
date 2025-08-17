@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
-import { Head, usePage } from '@inertiajs/react'
+import { Head, usePage, router } from '@inertiajs/react'
 import dayjs from 'dayjs'
 import isoWeek from 'dayjs/plugin/isoWeek'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Trash2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import TopNavigation from '@/components/TopNavigation'
 import { PageProps } from '@inertiajs/core'
 import { Category } from '@/types'
+import { toast } from 'sonner'
 
 dayjs.extend(isoWeek)
 
@@ -59,13 +60,64 @@ interface CalendarData {
 interface CalendarPageProps extends PageProps {
     calendarData: CalendarData
     categories: Category[]
+    csrf: string
 }
 
 const Calendar = () => {
-    const { calendarData, categories } = usePage<CalendarPageProps>().props
+    const { calendarData, categories, csrf } = usePage<CalendarPageProps>().props
     const [currentView, setCurrentView] = useState<'day' | 'week' | 'month'>(calendarData.currentView || 'month')
     const [currentDate, setCurrentDate] = useState(dayjs(calendarData.currentDate))
     const [selectedDate, setSelectedDate] = useState(dayjs(calendarData.currentDate))
+    const [deletingRecipe, setDeletingRecipe] = useState<string | null>(null)
+
+    const handleDeleteRecipe = async (recipeId: string, date: string, recipeTitle: string) => {
+        setDeletingRecipe(recipeId)
+
+        try {
+            // Use CSRF token from Inertia props
+            if (!csrf) {
+                toast.error('Security token missing', {
+                    description: 'Please refresh the page and try again',
+                })
+                return
+            }
+
+            const response = await fetch('/api/recipe-calendar', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    recipe_id: recipeId,
+                    date: date,
+                }),
+            })
+
+            const result = await response.json()
+
+            if (response.ok && result.success) {
+                toast.success('Recipe removed from calendar', {
+                    description: `"${recipeTitle}" removed from ${dayjs(date).format('MMM D, YYYY')}`,
+                })
+
+                // Refresh the calendar data
+                router.reload({ only: ['calendarData'] })
+            } else {
+                toast.error('Failed to remove recipe', {
+                    description: result.message || 'Please try again later',
+                })
+            }
+        } catch (error) {
+            console.error('Error deleting recipe from calendar:', error)
+            toast.error('Failed to remove recipe', {
+                description: 'An error occurred while removing the recipe',
+            })
+        } finally {
+            setDeletingRecipe(null)
+        }
+    }
 
     const navigateDate = (direction: 'prev' | 'next') => {
         let newDate: dayjs.Dayjs
@@ -128,10 +180,26 @@ const Calendar = () => {
                         {dayData?.recipes.slice(0, 3).map((recipe, index) => (
                             <div
                                 key={recipe.id}
-                                className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded truncate"
+                                className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded truncate flex items-center justify-between group"
                                 title={recipe.title}
                             >
-                                {recipe.title}
+                                <span className="truncate flex-1">{recipe.title}</span>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 ml-1 hover:bg-red-100 hover:text-red-600"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDeleteRecipe(recipe.id, currentDay.format('YYYY-MM-DD'), recipe.title)
+                                    }}
+                                    disabled={deletingRecipe === recipe.id}
+                                >
+                                    {deletingRecipe === recipe.id ? (
+                                        <div className="animate-spin h-3 w-3 border border-current border-t-transparent rounded-full" />
+                                    ) : (
+                                        <X className="h-3 w-3" />
+                                    )}
+                                </Button>
                             </div>
                         ))}
                         {dayData && dayData.recipes.length > 3 && (
@@ -189,11 +257,27 @@ const Calendar = () => {
                         {dayData?.recipes.map((recipe) => (
                             <div
                                 key={recipe.id}
-                                className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded cursor-pointer hover:bg-blue-200"
+                                className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded cursor-pointer hover:bg-blue-200 flex items-center justify-between group"
                                 title={recipe.title}
                                 onClick={() => setSelectedDate(currentDay)}
                             >
-                                {recipe.title}
+                                <span className="truncate flex-1">{recipe.title}</span>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-4 w-4 p-0 opacity-0 group-hover:opacity-100 ml-1 hover:bg-red-100 hover:text-red-600"
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleDeleteRecipe(recipe.id, currentDay.format('YYYY-MM-DD'), recipe.title)
+                                    }}
+                                    disabled={deletingRecipe === recipe.id}
+                                >
+                                    {deletingRecipe === recipe.id ? (
+                                        <div className="animate-spin h-3 w-3 border border-current border-t-transparent rounded-full" />
+                                    ) : (
+                                        <X className="h-3 w-3" />
+                                    )}
+                                </Button>
                             </div>
                         ))}
                     </div>
@@ -226,23 +310,41 @@ const Calendar = () => {
                     {dayData?.recipes.length ? (
                         <div className="space-y-3">
                             {dayData.recipes.map((recipe) => (
-                                <div key={recipe.id} className="p-3 border rounded-lg hover:bg-gray-50">
-                                    <h3 className="font-medium text-lg">{recipe.title}</h3>
-                                    <p className="text-sm text-gray-600">By {recipe.author}</p>
-                                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                        <span>Prep: {recipe.prepTime}min</span>
-                                        <span>Cook: {recipe.cookTime}min</span>
-                                        <span>Serves: {recipe.servings}</span>
-                                    </div>
-                                    {recipe.categories.length > 0 && (
-                                        <div className="flex gap-1 mt-2">
-                                            {recipe.categories.map((category) => (
-                                                <Badge key={category} variant="outline" className="text-xs">
-                                                    {category}
-                                                </Badge>
-                                            ))}
+                                <div key={recipe.id} className="p-3 border rounded-lg hover:bg-gray-50 group">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <h3 className="font-medium text-lg">{recipe.title}</h3>
+                                            <p className="text-sm text-gray-600">By {recipe.author}</p>
+                                            <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                                                <span>Prep: {recipe.prepTime}min</span>
+                                                <span>Cook: {recipe.cookTime}min</span>
+                                                <span>Serves: {recipe.servings}</span>
+                                            </div>
+                                            {recipe.categories.length > 0 && (
+                                                <div className="flex gap-1 mt-2">
+                                                    {recipe.categories.map((category) => (
+                                                        <Badge key={category} variant="outline" className="text-xs">
+                                                            {category}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                                            onClick={() => handleDeleteRecipe(recipe.id, selectedDate.format('YYYY-MM-DD'), recipe.title)}
+                                            disabled={deletingRecipe === recipe.id}
+                                            title="Remove from calendar"
+                                        >
+                                            {deletingRecipe === recipe.id ? (
+                                                <div className="animate-spin h-4 w-4 border border-current border-t-transparent rounded-full" />
+                                            ) : (
+                                                <Trash2 className="h-4 w-4" />
+                                            )}
+                                        </Button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -344,9 +446,27 @@ const Calendar = () => {
                                             return recipes.length > 0 ? (
                                                 <div className="space-y-2">
                                                     {recipes.map((recipe) => (
-                                                        <div key={recipe.id} className="p-2 border rounded hover:bg-gray-50 cursor-pointer">
-                                                            <h4 className="font-medium text-sm">{recipe.title}</h4>
-                                                            <p className="text-xs text-gray-600">By {recipe.author}</p>
+                                                        <div key={recipe.id} className="p-2 border rounded hover:bg-gray-50 cursor-pointer group">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1">
+                                                                    <h4 className="font-medium text-sm">{recipe.title}</h4>
+                                                                    <p className="text-xs text-gray-600">By {recipe.author}</p>
+                                                                </div>
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="ghost"
+                                                                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-600 hover:bg-red-50"
+                                                                    onClick={() => handleDeleteRecipe(recipe.id, selectedDateStr, recipe.title)}
+                                                                    disabled={deletingRecipe === recipe.id}
+                                                                    title="Remove from calendar"
+                                                                >
+                                                                    {deletingRecipe === recipe.id ? (
+                                                                        <div className="animate-spin h-3 w-3 border border-current border-t-transparent rounded-full" />
+                                                                    ) : (
+                                                                        <X className="h-3 w-3" />
+                                                                    )}
+                                                                </Button>
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>
