@@ -481,7 +481,7 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
                                         href={`/recipes/${relatedRecipe.id}`}
                                         className="group"
                                     >
-                                        <Card className="overflow-hidden transition-transform group-hover:scale-105">
+                                        <Card className="overflow-hidden transition-transform group-hover:scale-105 pt-0">
                                             <div className="aspect-[4/3] bg-gray-200">
                                                 {relatedRecipe.image_url ? (
                                                     <img
