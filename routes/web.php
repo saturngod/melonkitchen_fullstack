@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\IngredientController;
@@ -45,9 +46,7 @@ Route::middleware(['auth', 'verified', 'onlyadmin'])->group(function () {
 
     Route::prefix('dashboard')->group(function () {
         
-        Route::get('/', function () {
-            return Inertia::render('dashboard');
-        })->name('dashboard');
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('users', UserController::class);
 
