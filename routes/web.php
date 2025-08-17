@@ -27,6 +27,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/favourites', [\App\Http\Controllers\UserRecipeController::class, 'page'])
         ->name('favourites');
     
+    // Profile page for main site
+    Route::get('/profile', [\App\Http\Controllers\Main\ProfileController::class, 'show'])
+        ->name('profile');
+    Route::post('/profile', [\App\Http\Controllers\Main\ProfileController::class, 'updateProfile'])
+        ->name('profile.update');
+    Route::post('/profile/password', [\App\Http\Controllers\Main\ProfileController::class, 'updatePassword'])
+        ->name('profile.password.update');
+    Route::delete('/profile/avatar', [\App\Http\Controllers\Main\ProfileController::class, 'deleteAvatar'])
+        ->name('profile.avatar.delete');
+    
     // Recipe creation for regular users - using main site layout
     Route::get('/recipes/create', [\App\Http\Controllers\Main\MainRecipeController::class, 'create'])
         ->name('recipes.create');
