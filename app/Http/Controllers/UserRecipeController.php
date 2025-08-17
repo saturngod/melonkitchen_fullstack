@@ -8,9 +8,32 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class UserRecipeController extends Controller
 {
+    /**
+     * Display the user's favorite recipes page.
+     */
+    public function page(Request $request): Response
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $favoriteRecipes = $user->favoriteRecipes()
+            ->with(['user', 'categories', 'tags'])
+            ->paginate(12)
+            ->withQueryString();
+
+        return Inertia::render('main/favourites', [
+            'favoriteRecipes' => $favoriteRecipes,
+        ]);
+    }
+
     /**
      * Toggle a recipe as favorite for the authenticated user.
      */

@@ -23,6 +23,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-recipes', [\App\Http\Controllers\Main\MyRecipesController::class, 'index'])
         ->name('my-recipes');
     
+    // User favourites page
+    Route::get('/favourites', [\App\Http\Controllers\UserRecipeController::class, 'page'])
+        ->name('favourites');
+    
     // Recipe creation for regular users - using main site layout
     Route::get('/recipes/create', [\App\Http\Controllers\Main\MainRecipeController::class, 'create'])
         ->name('recipes.create');
