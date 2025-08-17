@@ -112,6 +112,23 @@ class Recipe extends Model
     }
 
     /**
+     * Get the users who have favorited this recipe through the pivot table.
+     */
+    public function favoritedByUsers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'fav_user_recipes')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the user recipe entries for this recipe.
+     */
+    public function userRecipes(): HasMany
+    {
+        return $this->hasMany(UserRecipe::class);
+    }
+
+    /**
      * Scope a query to search recipes by title.
      */
     public function scopeSearch($query, $search)

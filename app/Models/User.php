@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -75,5 +76,22 @@ class User extends Authenticatable
     public function recipeCalendars(): HasMany
     {
         return $this->hasMany(RecipeCalendar::class);
+    }
+
+    /**
+     * Get the user's favorite recipes through the pivot table.
+     */
+    public function favoriteRecipes(): BelongsToMany
+    {
+        return $this->belongsToMany(Recipe::class, 'fav_user_recipes')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the user's favorite recipe entries.
+     */
+    public function userRecipes(): HasMany
+    {
+        return $this->hasMany(UserRecipe::class);
     }
 }

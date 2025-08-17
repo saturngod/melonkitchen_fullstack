@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,47 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+    // Favorite state
+    const [isFavorite, setIsFavorite] = useState<boolean>(false);
+    const [isCheckingFavorite, setIsCheckingFavorite] = useState<boolean>(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+
+    // Check if recipe is favorited when component loads
+    useEffect(() => {
+        const checkFavoriteStatus = async () => {
+            if (!auth.user) {
+                setIsFavorite(false);
+                return;
+            }
+
+            setIsCheckingFavorite(true);
+            try {
+                const response = await fetch('/api/user-recipe/check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf as string,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        recipe_id: recipe.id,
+                    }),
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    setIsFavorite(result.data.is_favorite);
+                }
+            } catch (error) {
+                console.error('Error checking favorite status:', error);
+            } finally {
+                setIsCheckingFavorite(false);
+            }
+        };
+
+        checkFavoriteStatus();
+    }, [auth.user, recipe.id, csrf]);
 
     const formatTime = (minutes: number | undefined): string => {
         if (!minutes) return 'N/A';
@@ -148,13 +189,50 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
     };
 
     // Authentication check handlers
-    const handleSaveRecipe = () => {
+    const handleSaveRecipe = async () => {
         if (!auth.user) {
             router.get('/login');
             return;
         }
-        // TODO: Implement save functionality for authenticated users
-        console.log('Save recipe for user:', auth.user.name);
+
+        setIsSaving(true);
+        try {
+            const response = await fetch('/api/user-recipe/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrf as string,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    recipe_id: recipe.id,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                const newFavoriteStatus = result.data.is_favorite;
+                setIsFavorite(newFavoriteStatus);
+
+                // Show success toast
+                toast.success(result.message, {
+                    description: `Recipe "${result.data.recipe_title}" ${result.data.action} ${newFavoriteStatus ? 'to' : 'from'} favorites`,
+                });
+            } else {
+                // Show error toast
+                toast.error('Failed to update favorite status', {
+                    description: result.message || 'Please try again later',
+                });
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            toast.error('Network error', {
+                description: 'Failed to connect to server. Please try again.',
+            });
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleCalendarClick = () => {
@@ -181,9 +259,19 @@ export default function PublicRecipeShow({ recipe, relatedRecipes, categories }:
                         {/* Action Buttons Row */}
                         <div className="flex justify-end items-center mb-6">
                             <div className="flex items-center space-x-4">
-                                <Button variant="ghost" size="sm" onClick={handleSaveRecipe}>
-                                    <Heart className="w-4 h-4 mr-2" />
-                                    Save
+                                <Button
+                                    variant={isFavorite ? "default" : "ghost"}
+                                    size="sm"
+                                    onClick={handleSaveRecipe}
+                                    disabled={isCheckingFavorite || isSaving}
+                                    className={isFavorite ? "bg-red-500 hover:bg-red-600 text-white" : ""}
+                                >
+                                    <Heart className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-current' : ''}`} />
+                                    {isSaving ? (
+                                        'Loading...'
+                                    ) : (
+                                        isFavorite ? 'Remove' : 'Save'
+                                    )}
                                 </Button>
 
                                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>

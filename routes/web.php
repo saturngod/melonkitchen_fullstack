@@ -48,6 +48,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [\App\Http\Controllers\RecipeCalendarController::class, 'index'])
             ->name('recipe-calendar.index');
     });
+
+    // User Recipe Favorites API routes
+    Route::prefix('api/user-recipe')->group(function () {
+        Route::post('/toggle', [\App\Http\Controllers\UserRecipeController::class, 'toggle'])
+            ->name('user-recipe.toggle');
+        Route::post('/check', [\App\Http\Controllers\UserRecipeController::class, 'check'])
+            ->name('user-recipe.check');
+        Route::get('/', [\App\Http\Controllers\UserRecipeController::class, 'index'])
+            ->name('user-recipe.index');
+    });
 });
 
 // Public recipe view route - PUT THIS AFTER the authenticated routes
