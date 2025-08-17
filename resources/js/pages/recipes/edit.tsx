@@ -48,6 +48,7 @@ export default function EditRecipe({ recipe, categories, tags, ingredients, unit
         prep_time_minutes: recipe.prep_time_minutes || 0,
         cook_time_minutes: recipe.cook_time_minutes || 0,
         youtube_url: recipe.youtube_url || '',
+        is_public: recipe.is_public || false,
         category_id: recipe.categories?.[0]?.id || '',
         tag_ids: recipe.tags?.map(tag => tag.id) || [],
         ingredients: recipe.recipe_ingredients?.map(ingredient => ({

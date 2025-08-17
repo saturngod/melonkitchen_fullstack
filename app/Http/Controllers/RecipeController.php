@@ -110,6 +110,7 @@ class RecipeController extends Controller
                 'cook_time_minutes' => $validated['cook_time_minutes'],
                 'image_url' => $imageUrl,
                 'youtube_url' => $validated['youtube_url'] ?? null,
+                'is_public' => $validated['is_public'] ?? false,
             ]);
 
             // Attach category
@@ -164,7 +165,13 @@ class RecipeController extends Controller
             }
 
             \DB::commit();
-            return redirect()->route('recipes.index')->with('success', 'Recipe created successfully!');
+            
+            // Redirect based on user type
+            if (auth()->user()->role === \App\Enums\UserRole::ADMIN) {
+                return redirect()->route('recipes.index')->with('success', 'Recipe created successfully!');
+            } else {
+                return redirect()->route('my-recipes')->with('success', 'Recipe created successfully!');
+            }
         } catch (\Exception $e) {
             \DB::rollBack();
             return redirect()->back()->withErrors(['error' => 'Failed to create recipe: ' . $e->getMessage()]);
@@ -237,6 +244,7 @@ class RecipeController extends Controller
                 'cook_time_minutes' => $validated['cook_time_minutes'],
                 'image_url' => $imageUrl,
                 'youtube_url' => $validated['youtube_url'] ?? null,
+                'is_public' => $validated['is_public'] ?? false,
             ]);
 
             // Update category

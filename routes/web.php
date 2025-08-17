@@ -18,14 +18,22 @@ Route::get('/', [HomeController::class,'index'])->name('home');
 // Search route
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
-// Public recipe view route
-Route::get('/recipes/{recipe}', [MainRecipeController::class, 'show'])
-    ->name('recipes.public.show');
-
 // My recipes route (requires authentication)
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-recipes', [\App\Http\Controllers\Main\MyRecipesController::class, 'index'])
         ->name('my-recipes');
+    
+    // Recipe creation for regular users - using main site layout
+    Route::get('/recipes/create', [\App\Http\Controllers\Main\MainRecipeController::class, 'create'])
+        ->name('recipes.create');
+    Route::post('/recipes', [\App\Http\Controllers\Main\MainRecipeController::class, 'store'])
+        ->name('recipes.store');
+    Route::get('/recipes/{recipe}/edit', [\App\Http\Controllers\Main\MainRecipeController::class, 'edit'])
+        ->name('recipes.edit')->middleware('can:update,recipe');
+    Route::put('/recipes/{recipe}', [\App\Http\Controllers\Main\MainRecipeController::class, 'update'])
+        ->name('recipes.update')->middleware('can:update,recipe');
+    Route::delete('/recipes/{recipe}', [\App\Http\Controllers\Main\MainRecipeController::class, 'destroy'])
+        ->name('recipes.destroy')->middleware('can:delete,recipe');
     
     // Calendar route
     Route::get('/calendar', [CalendarController::class, 'index'])
@@ -41,6 +49,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('recipe-calendar.index');
     });
 });
+
+// Public recipe view route - PUT THIS AFTER the authenticated routes
+Route::get('/recipes/{recipe}', [MainRecipeController::class, 'show'])
+    ->name('recipes.public.show');
 
 Route::middleware(['auth', 'verified', 'onlyadmin'])->group(function () {
 

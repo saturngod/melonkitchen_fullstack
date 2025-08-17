@@ -44,6 +44,7 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
         prep_time_minutes: 0,
         cook_time_minutes: 0,
         youtube_url: '',
+        is_public: false,
         category_id: '',
         tag_ids: [],
         ingredients: [],

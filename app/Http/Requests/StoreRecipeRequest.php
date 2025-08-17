@@ -31,6 +31,7 @@ class StoreRecipeRequest extends FormRequest
             'cook_time_minutes' => 'required|integer|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'youtube_url' => 'nullable|url',
+            'is_public' => 'boolean',
             
             // Step 2: Category/Tags/Ingredients
             'category_id' => 'required|exists:categories,id',

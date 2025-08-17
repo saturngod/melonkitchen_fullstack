@@ -38,6 +38,7 @@ export interface RecipeFormData {
     cook_time_minutes: number;
     image?: File;
     youtube_url: string;
+    is_public: boolean;
     category_id: string;
     tag_ids: string[];
     ingredients: Array<{

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 interface InformationStepProps {
   data: {
@@ -12,6 +13,7 @@ interface InformationStepProps {
     cook_time_minutes: number;
     image?: File;
     youtube_url: string;
+    is_public: boolean;
   };
   setData: (data: Partial<InformationStepProps['data']>) => void;
   errors: Record<string, string>;
@@ -151,6 +153,23 @@ export default function InformationStep({ data, setData, errors }: InformationSt
         className={errors.youtube_url ? 'border-red-500' : ''}
       />
       {errors.youtube_url && <p className="text-red-500 text-sm">{errors.youtube_url}</p>}
+
+      <div className="flex items-center justify-between">
+        <div className="space-y-0.5">
+          <Label htmlFor="is_public" className="text-base">
+            Make Recipe Public
+          </Label>
+          <div className="text-sm text-gray-500">
+            Allow other users to view and search for this recipe
+          </div>
+        </div>
+        <Switch
+          id="is_public"
+          checked={data.is_public}
+          onCheckedChange={(checked) => setData({ is_public: checked })}
+        />
+      </div>
+      {errors.is_public && <p className="text-red-500 text-sm">{errors.is_public}</p>}
     </div>
   );
 }

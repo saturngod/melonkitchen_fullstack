@@ -46,6 +46,7 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
         prep_time_minutes: 0,
         cook_time_minutes: 0,
         youtube_url: '',
+        is_public: true, // Default to public for new recipes
         category_id: '',
         tag_ids: [],
         ingredients: [],
@@ -69,7 +70,7 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
 
         router.post(route('recipes.store'), formData, {
             onSuccess: () => {
-                router.get(route('recipes.index'));
+                router.get(route('my-recipes'));
             },
             onError: (errors: any) => {
                 console.log('Form submission errors:', errors);
@@ -83,8 +84,8 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
     };
 
     const breadcrumbs = [
-        { title: 'Recipes', href: '/dashboard/recipes' },
-        { title: 'Create Recipe', href: '/dashboard/recipes/create' },
+        { title: 'My Recipes', href: '/my-recipes' },
+        { title: 'Create Recipe', href: '/recipes/create' },
     ];
 
     return (
