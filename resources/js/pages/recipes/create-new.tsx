@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import RecipeForm, { RecipeFormData } from '@/components/recipe/RecipeForm';
@@ -34,6 +34,8 @@ interface CreateRecipeProps {
 }
 
 export default function CreateRecipe({ categories, tags, ingredients, units }: CreateRecipeProps) {
+    const [currentIngredients, setCurrentIngredients] = useState(ingredients);
+
     const initialData: RecipeFormData = {
         title: '',
         description: '',
@@ -50,6 +52,16 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
     };
 
     const { data, setData, post, processing, errors } = useForm(initialData);
+
+    const handleIngredientsUpdate = () => {
+        // Refresh ingredients by making a request to get updated ingredients list
+        router.reload({
+            only: ['ingredients'],
+            onSuccess: (page: any) => {
+                setCurrentIngredients(page.props.ingredients);
+            }
+        });
+    };
 
     const handleSubmit = (formData: RecipeFormData) => {
         setData(formData);
@@ -82,12 +94,13 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
                 initialData={initialData}
                 categories={categories}
                 tags={tags}
-                ingredients={ingredients}
+                ingredients={currentIngredients}
                 units={units}
                 errors={errors}
                 processing={processing}
                 onSubmit={handleSubmit}
                 submitLabel="Create Recipe"
+                onIngredientsUpdate={handleIngredientsUpdate}
             />
         </AppLayout>
     );

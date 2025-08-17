@@ -36,6 +36,7 @@ interface CreateRecipeProps {
 export default function CreateRecipe({ categories, tags, ingredients, units }: CreateRecipeProps) {
     const [processing, setProcessing] = useState(false);
     const [errors, setErrors] = useState({});
+    const [currentIngredients, setCurrentIngredients] = useState(ingredients);
 
     const initialData: RecipeFormData = {
         title: '',
@@ -50,6 +51,16 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
         ingredients: [],
         instructions: [{ step_number: 1, instruction: '', image: null }],
         nutrition: {},
+    };
+
+    const handleIngredientsUpdate = () => {
+        // Refresh ingredients by making a request to get updated ingredients list
+        router.reload({
+            only: ['ingredients'],
+            onSuccess: (page: any) => {
+                setCurrentIngredients(page.props.ingredients);
+            }
+        });
     };
 
     const handleSubmit = (formData: RecipeFormData) => {
@@ -90,12 +101,13 @@ export default function CreateRecipe({ categories, tags, ingredients, units }: C
                 initialData={initialData}
                 categories={categories}
                 tags={tags}
-                ingredients={ingredients}
+                ingredients={currentIngredients}
                 units={units}
                 errors={errors}
                 processing={processing}
                 onSubmit={handleSubmit}
                 submitLabel="Create Recipe"
+                onIngredientsUpdate={handleIngredientsUpdate}
             />
         </AppLayout>
     );

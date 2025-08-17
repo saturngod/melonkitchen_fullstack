@@ -74,6 +74,7 @@ interface RecipeFormProps {
     processing?: boolean;
     onSubmit: (data: RecipeFormData) => void;
     submitLabel?: string;
+    onIngredientsUpdate?: () => void; // Callback to refresh ingredients
 }
 
 const STEPS = [
@@ -93,6 +94,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
     processing = false,
     onSubmit,
     submitLabel = 'Save Recipe',
+    onIngredientsUpdate,
 }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const [data, setData] = useState<RecipeFormData>(initialData);
@@ -188,6 +190,7 @@ const RecipeForm: React.FC<RecipeFormProps> = ({
                             tags={tags}
                             ingredients={ingredients}
                             units={units}
+                            onIngredientsUpdate={onIngredientsUpdate}
                         />
                     )}
                     {currentStep === 3 && (

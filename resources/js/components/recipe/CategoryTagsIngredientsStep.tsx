@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { router } from '@inertiajs/react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Plus, X } from 'lucide-react';
+import CreateIngredientDialog from '@/components/shared/CreateIngredientDialog';
 
 interface Category {
     id: string;
@@ -55,6 +57,7 @@ interface CategoryTagsIngredientsStepProps {
     tags: Tag[];
     ingredients: Ingredient[];
     units: Unit[];
+    onIngredientsUpdate?: () => void; // Callback to refresh ingredients list
 }
 
 export default function CategoryTagsIngredientsStep({
@@ -65,6 +68,7 @@ export default function CategoryTagsIngredientsStep({
     tags,
     ingredients,
     units,
+    onIngredientsUpdate,
 }: CategoryTagsIngredientsStepProps) {
     const [newIngredient, setNewIngredient] = useState<RecipeIngredient>({
         ingredient_id: '',
@@ -73,6 +77,7 @@ export default function CategoryTagsIngredientsStep({
         notes: '',
         is_optional: false,
     });
+    const [showCreateDialog, setShowCreateDialog] = useState(false);
 
     // Transform categories for combobox
     const categoryOptions = categories.map(category => ({
@@ -89,7 +94,7 @@ export default function CategoryTagsIngredientsStep({
     // Transform units for select
     const unitOptions = units.map(unit => ({
         value: unit.id,
-        label: `${unit.name} (${unit.abbreviation})`,
+        label: `${unit.name}`,
     }));
 
     // Transform tags for multi-select
@@ -104,7 +109,7 @@ export default function CategoryTagsIngredientsStep({
         if (ingredient?.units && ingredient.units.length > 0) {
             return ingredient.units.map(unit => ({
                 value: unit.id,
-                label: `${unit.name} (${unit.abbreviation})`,
+                label: `${unit.name}`,
             }));
         }
         // Fallback to all units if ingredient doesn't have specific units
@@ -140,7 +145,14 @@ export default function CategoryTagsIngredientsStep({
     };
 
     const getUnitName = (unitId: string) => {
-        return units.find(unit => unit.id === unitId)?.abbreviation || '';
+        return units.find(unit => unit.id === unitId)?.name || '';
+    };
+
+    const handleCreateIngredientSuccess = () => {
+        // Refresh the ingredients list by calling the parent callback
+        if (onIngredientsUpdate) {
+            onIngredientsUpdate();
+        }
     };
 
     return (
@@ -208,10 +220,7 @@ export default function CategoryTagsIngredientsStep({
                                         variant="outline"
                                         size="sm"
                                         className="h-6 px-2 text-xs"
-                                        onClick={() => {
-                                            // TODO: Open modal to create new ingredient
-                                            console.log('Add new ingredient clicked');
-                                        }}
+                                        onClick={() => setShowCreateDialog(true)}
                                     >
                                         <Plus className="h-3 w-3 mr-1" />
                                         Add Ingredient
@@ -292,25 +301,32 @@ export default function CategoryTagsIngredientsStep({
 
                 {/* Ingredients List */}
                 {data.ingredients.length > 0 && (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         <Label className="text-sm font-medium">Recipe Ingredients ({data.ingredients.length})</Label>
-                        <div className="rounded-md border mt-4">
+                        <div className="space-y-3 mt-4">
                             {data.ingredients.map((ingredient, index) => (
                                 <div
                                     key={index}
-                                    className="flex items-center justify-between px-3 py-2 border-b last:border-b-0 hover:bg-muted/30 transition-colors"
+                                    className="flex items-start space-x-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                                 >
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <span className="font-medium text-sm">
-                                                {ingredient.quantity} {getUnitName(ingredient.unit_id)} {getIngredientName(ingredient.ingredient_id)}
+                                        <div className="flex items-baseline space-x-3 flex-wrap">
+                                            <span className="font-medium text-sm flex-1">
+                                                {getIngredientName(ingredient.ingredient_id)}
                                             </span>
+                                            <span className="font-bold text-base">
+                                                {ingredient.quantity}
+                                                <span className="ml-1 text-sm font-medium">
+                                                    {getUnitName(ingredient.unit_id)}
+                                                </span>
+                                            </span>
+
                                             {ingredient.is_optional && (
                                                 <Badge variant="secondary" className="text-xs h-5">Optional</Badge>
                                             )}
                                         </div>
                                         {ingredient.notes && (
-                                            <p className="text-xs text-muted-foreground mt-0.5 break-words">
+                                            <p className="text-xs text-muted-foreground mt-2 italic bg-muted px-3 py-2 rounded-md">
                                                 {ingredient.notes}
                                             </p>
                                         )}
@@ -320,9 +336,9 @@ export default function CategoryTagsIngredientsStep({
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => removeIngredient(index)}
-                                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive ml-2 flex-shrink-0"
+                                        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive flex-shrink-0"
                                     >
-                                        <X className="h-3.5 w-3.5" />
+                                        <X className="h-4 w-4" />
                                         <span className="sr-only">Remove ingredient</span>
                                     </Button>
                                 </div>
@@ -335,6 +351,13 @@ export default function CategoryTagsIngredientsStep({
                     <p className="text-sm text-destructive">{errors.ingredients}</p>
                 )}
             </div>
+
+            {/* Create Ingredient Dialog */}
+            <CreateIngredientDialog
+                open={showCreateDialog}
+                onOpenChange={setShowCreateDialog}
+                onSuccess={handleCreateIngredientSuccess}
+            />
         </div>
     );
 }

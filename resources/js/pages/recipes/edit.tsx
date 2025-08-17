@@ -38,6 +38,7 @@ interface EditRecipeProps {
 export default function EditRecipe({ recipe, categories, tags, ingredients, units }: EditRecipeProps) {
     const [processing, setProcessing] = React.useState(false);
     const [errors, setErrors] = React.useState({});
+    const [currentIngredients, setCurrentIngredients] = React.useState(ingredients);
 
     const initialData: RecipeFormData = {
         title: recipe.title || '',
@@ -70,6 +71,16 @@ export default function EditRecipe({ recipe, categories, tags, ingredients, unit
             sugar_g: recipe.nutritionInfo?.sugar_grams,
             sodium_mg: recipe.nutritionInfo?.sodium_mg,
         },
+    };
+
+    const handleIngredientsUpdate = () => {
+        // Refresh ingredients by making a request to get updated ingredients list
+        router.reload({
+            only: ['ingredients'],
+            onSuccess: (page: any) => {
+                setCurrentIngredients(page.props.ingredients);
+            }
+        });
     };
 
     const handleSubmit = (formData: RecipeFormData) => {
@@ -110,12 +121,13 @@ export default function EditRecipe({ recipe, categories, tags, ingredients, unit
                 initialData={initialData}
                 categories={categories}
                 tags={tags}
-                ingredients={ingredients}
+                ingredients={currentIngredients}
                 units={units}
                 errors={errors}
                 processing={processing}
                 onSubmit={handleSubmit}
                 submitLabel="Update Recipe"
+                onIngredientsUpdate={handleIngredientsUpdate}
             />
         </AppLayout>
     );
